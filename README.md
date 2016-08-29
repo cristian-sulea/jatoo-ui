@@ -1,4 +1,6 @@
-jatoo-ui
+
+
+JaToo UI
 ========
 
-A Java Open Source library created to ease the work with UI components (or create new ones).
+A Java™ Open Source library created to ease the work with UI components (or create new ones).
