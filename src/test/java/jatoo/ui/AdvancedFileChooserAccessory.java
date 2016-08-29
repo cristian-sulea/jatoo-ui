@@ -18,7 +18,7 @@
 package jatoo.ui;
 
 import jatoo.image.ImageUtils;
-import jatoo.image.ImageUtilsOldMethods;
+//import jatoo.image.ImageUtilsOldMethods;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -219,7 +219,9 @@ public class AdvancedFileChooserAccessory extends JPanel {
       if (fileName.endsWith(".gif") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".png")) {
         try {
           BufferedImage image = ImageUtils.read(file);
-          image = ImageUtilsOldMethods.resize(image, previewContainer.getWidth(), previewContainer.getHeight());
+          //TODO
+          //image = ImageUtilsOldMethods.resize(image, previewContainer.getWidth(), previewContainer.getHeight());
+          image = null;
           previewLabel.setIcon(new ImageIcon(image));
           ((CardLayout) previewContainer.getLayout()).show(previewContainer, "Label");
           return;
