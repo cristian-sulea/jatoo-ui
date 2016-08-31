@@ -1,56 +1,56 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
 
-  <parent>
-    <groupId>net.sulea.cristian</groupId>
-    <artifactId>jatoo</artifactId>
-    <relativePath>../jatoo/pom.xml</relativePath>
-    <version>4.0.2</version>
-  </parent>
+	<parent>
+		<groupId>net.sulea.cristian</groupId>
+		<artifactId>jatoo</artifactId>
+		<relativePath>../jatoo/pom.xml</relativePath>
+		<version>4.0.2</version>
+	</parent>
 
-  <artifactId>jatoo-ui</artifactId>
-  <packaging>jar</packaging>
-
-
-  <name>JaToo UI</name>
-  <description>A Java™ Open Source library created to ease the work with UI components (or create new ones).</description>
-  <url>http://cristian.sulea.net/projects/jatoo-ui/</url>
-
-  <inceptionYear>2011</inceptionYear>
+	<artifactId>jatoo-ui</artifactId>
+	<packaging>jar</packaging>
 
 
-  <developers>
-    <developer>
-      <id>cristian.sulea</id>
-      <name>Cristian Sulea</name>
-      <email>cristian.sulea.79@gmail.com</email>
-      <url>http://cristian.sulea.net</url>
-    </developer>
-  </developers>
+	<name>JaToo UI</name>
+	<description>A Java™ Open Source library created to ease the work with UI components (or create new ones).</description>
+	<url>http://cristian.sulea.net/projects/jatoo-ui/</url>
+
+	<inceptionYear>2011</inceptionYear>
 
 
-  <scm>
-    <connection>scm:git:git@github.com:cristian-sulea/jatoo-ui.git</connection>
-    <developerConnection>scm:git:git@github.com:cristian-sulea/jatoo-ui.git</developerConnection>
-    <url>https://github.com/cristian-sulea/jatoo-ui</url>
-  </scm>
+	<developers>
+		<developer>
+			<id>cristian.sulea</id>
+			<name>Cristian Sulea</name>
+			<email>cristian.sulea.79@gmail.com</email>
+			<url>http://cristian.sulea.net</url>
+		</developer>
+	</developers>
 
 
-  <dependencies>
+	<scm>
+		<connection>scm:git:git@github.com:cristian-sulea/jatoo-ui.git</connection>
+		<developerConnection>scm:git:git@github.com:cristian-sulea/jatoo-ui.git</developerConnection>
+		<url>https://github.com/cristian-sulea/jatoo-ui</url>
+	</scm>
 
-    <dependency>
-      <artifactId>jatoo-image</artifactId>
-      <groupId>${project.groupId}</groupId>
-      <version>${project.version}</version>
-    </dependency>
 
-    <dependency>
-      <groupId>com.miglayout</groupId>
-      <artifactId>miglayout-swing</artifactId>
-    </dependency>
+	<dependencies>
 
-  </dependencies>
+		<dependency>
+			<artifactId>jatoo-image</artifactId>
+			<groupId>${project.groupId}</groupId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.miglayout</groupId>
+			<artifactId>miglayout-swing</artifactId>
+		</dependency>
+
+	</dependencies>
 
 
 </project>
