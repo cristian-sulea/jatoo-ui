@@ -17,11 +17,9 @@
 
 package jatoo.ui;
 
-import jatoo.image.ImageFileFilter;
-import jatoo.image.ImageUtils;
-
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
@@ -39,13 +37,15 @@ import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionListener;
 
+import jatoo.image.ImageFileFilter;
+import jatoo.image.ImageUtils;
 import net.miginfocom.swing.MigLayout;
 
 /**
  * A component that displays a list of images from {@link File}s.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.5, September 8, 2014
+ * @version 1.6, June 8, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileList extends JPanel {
@@ -64,14 +64,33 @@ public class ImageFileList extends JPanel {
     this(2, 3);
   }
 
-  public ImageFileList(int rows, int columns) {
+  public ImageFileList(final int rows, final int columns) {
+    this(rows, columns, 100, true);
+  }
+
+  public ImageFileList(final int rows, final int columns, final int iconSize) {
+    this(rows, columns, iconSize, true);
+  }
+
+  public ImageFileList(final int rows, final int columns, final int iconSize, final boolean addShadow) {
 
     //
     // model and cell renderer
 
-    list = new JList<>();
+    final int listScrollableUnitIncrement = Math.max(9, iconSize / 10);
+
+    list = new JList<File>() {
+      @Override
+      public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
+        if (listScrollableUnitIncrement > 9) {
+          return listScrollableUnitIncrement;
+        } else {
+          return super.getScrollableUnitIncrement(visibleRect, orientation, direction);
+        }
+      }
+    };
     list.setModel(model = new ImageFileListModel());
-    list.setCellRenderer(renderer = new ImageFileListCellRenderer(100, true));
+    list.setCellRenderer(renderer = new ImageFileListCellRenderer(iconSize, addShadow));
 
     //
     // dummy files for the initial minimum size

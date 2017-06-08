@@ -34,11 +34,11 @@ public class ImageFileListTest {
 
   public static void main(String[] args) throws Exception {
 
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
     final ImageFileList images = new ImageFileList();
 
-    for (File file : new File("c:\\Temp\\x").listFiles()) {
+    for (File file : new File("c:\\Users\\cristian.sulea\\Downloads\\xxx\\").listFiles()) {
       if (file.isFile()) {
         images.addImage(file);
       }
@@ -69,6 +69,7 @@ public class ImageFileListTest {
     final JFrame frame = new JFrame(ImageFileList.class.getSimpleName() + " Test");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setContentPane(cp);
+    frame.setSize(800, 600);
     frame.pack();
     frame.setLocationRelativeTo(null);
     frame.setLocation(600, 500);
