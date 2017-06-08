@@ -34,7 +34,7 @@ public class ImageFileListTest {
 
   public static void main(String[] args) throws Exception {
 
-//    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
     final ImageFileList images = new ImageFileList();
 
