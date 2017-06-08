@@ -58,6 +58,7 @@ public class ImageCanvas extends JComponent {
    */
   public ImageCanvas(final BufferedImage image) {
     this.image = image;
+    setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
   }
 
   /**
