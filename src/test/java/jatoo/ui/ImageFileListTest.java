@@ -47,8 +47,9 @@ public class ImageFileListTest {
     images.addListSelectionListener(new ListSelectionListener() {
       public void valueChanged(ListSelectionEvent e) {
         if (!e.getValueIsAdjusting()) {
-
-          System.out.println("xxx: " + images.getSelectedImage());
+          if (images.getSelectedImage() != null) {
+            System.out.println("xxx: " + images.getSelectedImage());
+          }
         }
       }
     });
@@ -69,10 +70,10 @@ public class ImageFileListTest {
     final JFrame frame = new JFrame(ImageFileList.class.getSimpleName() + " Test");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setContentPane(cp);
-    frame.setSize(800, 600);
+//    frame.setSize(800, 600);
     frame.pack();
     frame.setLocationRelativeTo(null);
-    frame.setLocation(600, 500);
+//    frame.setLocation(600, 500);
     frame.setVisible(true);
   }
 

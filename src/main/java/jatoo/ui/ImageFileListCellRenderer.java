@@ -17,18 +17,11 @@
 
 package jatoo.ui;
 
-import jatoo.image.ImageThumbnails;
-import jatoo.image.ImageUtils;
-
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -39,98 +32,68 @@ import javax.swing.JToggleButton;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingConstants;
 
+import jatoo.image.ImageUtils;
+
 /**
  * The cell renderer for {@link ImageFileList} component.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.1, July 31, 2014
+ * @version 2.0-SNAPSHOT, June 12, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileListCellRenderer extends JComponent implements ListCellRenderer<File> {
 
-  private final ImageThumbnails thumbnails = new ImageThumbnails();
-  private final Map<File, Icon> cache = new HashMap<>();
-
-  private final int iconSize;
-  private final boolean addShadow;
+  private final ImageFileList imageFileList;
 
   private final JToggleButton button;
 
-  private final Icon defaultIcon;
+  private Icon defaultIcon;
 
-  public ImageFileListCellRenderer(final int iconSize, final boolean addShadow) {
+  public ImageFileListCellRenderer(final ImageFileList imageFileList) {
 
-    this.iconSize = iconSize;
-    this.addShadow = addShadow;
-
-    //
-    // default image
-
-    BufferedImage themeDefaultImage = UITheme.getImage(ImageFileListCellRenderer.class, "DefaultImage");
-
-    BufferedImage defaultImage = ImageUtils.create(iconSize, iconSize, true);
-    Graphics defaultImageGraphics = defaultImage.getGraphics();
-    defaultImageGraphics.drawImage(themeDefaultImage, (iconSize - themeDefaultImage.getWidth()) / 2, (iconSize - themeDefaultImage.getHeight()) / 2, null);
-    defaultImageGraphics.dispose();
-
-    if (addShadow) {
-      defaultImage = ImageUtils.addShadow(defaultImage);
-    }
-
-    defaultIcon = new ImageIcon(defaultImage);
-
-    //
-    // button
+    this.imageFileList = imageFileList;
 
     button = new JToggleButton();
     button.setHorizontalTextPosition(SwingConstants.CENTER);
     button.setVerticalTextPosition(SwingConstants.BOTTOM);
 
-    //
-    // set dummy text and icon for the initial preferred size
-
-    button.setText("text");
-    button.setIcon(defaultIcon);
-
-    //
-    // layout
+    setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
 
     setLayout(new GridLayout());
     add(button);
 
-    setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+    fireStylesChanged();
+  }
+
+  public void fireStylesChanged() {
+
+    //
+    // default icon image
+
+    BufferedImage themeDefaultImage = UITheme.getImage(ImageFileListCellRenderer.class, "DefaultImage");
+
+    BufferedImage defaultIconImage = ImageUtils.create(imageFileList.getIconSize(), imageFileList.getIconSize(), true);
+    Graphics defaultImageGraphics = defaultIconImage.getGraphics();
+    defaultImageGraphics.drawImage(themeDefaultImage, (imageFileList.getIconSize() - themeDefaultImage.getWidth()) / 2, (imageFileList.getIconSize() - themeDefaultImage.getHeight()) / 2, null);
+    defaultImageGraphics.dispose();
+
+    if (imageFileList.isAddShadow()) {
+      defaultIconImage = ImageUtils.addShadow(defaultIconImage);
+    }
+
+    //
+    // set the new values
+
+    this.defaultIcon = new ImageIcon(defaultIconImage);
+
+    //
+    // set dummy text and icon for the initial preferred size
+
+    button.setText("defaultText");
+    button.setIcon(defaultIcon);
+
+    setPreferredSize(null);
     setPreferredSize(getPreferredSize());
-  }
-
-  public void refreshImage(final ImageFileList list, final ImageFileListModel model, final File file) {
-    refreshImages(list, model, Arrays.asList(file));
-  }
-
-  public void refreshImages(final ImageFileList list, final ImageFileListModel model, final List<File> files) {
-
-    new Thread() {
-      public void run() {
-
-        for (File file : files) {
-
-          BufferedImage image = thumbnails.get(file, iconSize, iconSize);
-
-          if (image != null) {
-
-            synchronized (cache) {
-
-              if (addShadow) {
-                cache.put(file, new ImageIcon(ImageUtils.addShadow(image)));
-              } else {
-                cache.put(file, new ImageIcon(image));
-              }
-            }
-
-            model.fireContentsChanged();
-          }
-        }
-      }
-    }.start();
   }
 
   @Override
@@ -145,11 +108,7 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     //
     // icon
 
-    final Icon icon;
-
-    synchronized (cache) {
-      icon = cache.get(file);
-    }
+    Icon icon = imageFileList.getIcon(file);
 
     if (icon != null) {
       button.setIcon(icon);

@@ -27,7 +27,7 @@ import javax.swing.DefaultListModel;
  * The model for {@link ImageFileList} component.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.0, July 16, 2014
+ * @version 2.0-SNAPSHOT, June 9, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileListModel extends DefaultListModel<File> {

@@ -19,25 +19,37 @@ package jatoo.ui;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionListener;
 
 import jatoo.image.ImageFileFilter;
+import jatoo.image.ImageThumbnails;
 import jatoo.image.ImageUtils;
 import net.miginfocom.swing.MigLayout;
 
@@ -45,7 +57,7 @@ import net.miginfocom.swing.MigLayout;
  * A component that displays a list of images from {@link File}s.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.6, June 8, 2017
+ * @version 2.0-SNAPSHOT, June 12, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileList extends JPanel {
@@ -56,23 +68,32 @@ public class ImageFileList extends JPanel {
 
   private final JScrollPane listScrollPane;
 
-  private final Button addButton;
-  private final Button removeSelectedButton;
-  private final Button removeAllButton;
+  private int iconSize;
+  private boolean addShadow;
+
+  private final Map<File, Icon> icons = new HashMap<>();
+  private IconsLoader iconsLoader = new IconsLoader();
 
   public ImageFileList() {
     this(2, 3);
   }
 
   public ImageFileList(final int rows, final int columns) {
-    this(rows, columns, 100, true);
+    this(rows, columns, 100);
   }
 
   public ImageFileList(final int rows, final int columns, final int iconSize) {
     this(rows, columns, iconSize, true);
   }
 
-  public ImageFileList(final int rows, final int columns, final int iconSize, final boolean addShadow) {
+  public ImageFileList(final int rows, final int columns, final int iconSize, final boolean addButtons) {
+    this(rows, columns, iconSize, addButtons, true);
+  }
+
+  public ImageFileList(final int rows, final int columns, final int iconSize, final boolean addButtons, final boolean addShadow) {
+
+    this.iconSize = iconSize;
+    this.addShadow = addShadow;
 
     //
     // model and cell renderer
@@ -90,7 +111,9 @@ public class ImageFileList extends JPanel {
       }
     };
     list.setModel(model = new ImageFileListModel());
-    list.setCellRenderer(renderer = new ImageFileListCellRenderer(iconSize, addShadow));
+    list.setCellRenderer(renderer = new ImageFileListCellRenderer(this));
+
+    list.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
 
     //
     // dummy files for the initial minimum size
@@ -112,34 +135,9 @@ public class ImageFileList extends JPanel {
     list.setVisibleRowCount(-1);
 
     //
-    // remove actions on arrows (by setting a random action map key)
-    // better to not work at all, rather than work in a wrong way
+    // actions
 
-    // final Object actionMapKey = getClass() +
-    // String.valueOf(System.currentTimeMillis());
-    //
-    // list.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
-    // actionMapKey);
-    // list.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0),
-    // actionMapKey);
-    // list.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
-    // actionMapKey);
-    // list.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0),
-    // actionMapKey);
-
-    //
-    // list container
-
-    listScrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    listScrollPane.getViewport().setPreferredSize(list.getMinimumSize());
-
-    //
-    // buttons
-
-    // UITheme.getIcon(ImageFileList.class, "add-images");
-
-    addButton = new Button(UITheme.getText(ImageFileList.class, "AddImages"), UITheme.getIcon(ImageFileList.class, "AddImages"));
-    addButton.addActionListener(new ActionListener() {
+    final Action addImagesAction = new AbstractAction(UITheme.getText(ImageFileList.class, "AddImages"), UITheme.getIcon(ImageFileList.class, "AddImages")) {
       public void actionPerformed(ActionEvent e) {
 
         final FileChooser fc = new FileChooser();
@@ -151,30 +149,48 @@ public class ImageFileList extends JPanel {
           addImages(Arrays.asList(fc.getSelectedFiles()));
         }
       }
-    });
+    };
 
-    removeSelectedButton = new Button(UITheme.getText(ImageFileList.class, "RemoveSelected"), UITheme.getIcon(ImageFileList.class, "RemoveSelected"));
-    removeSelectedButton.addActionListener(new ActionListener() {
+    final Action removeSelectedAction = new AbstractAction(UITheme.getText(ImageFileList.class, "RemoveSelected"), UITheme.getIcon(ImageFileList.class, "RemoveSelected")) {
       public void actionPerformed(ActionEvent e) {
         removeSelectedImages();
       }
-    });
+    };
 
-    removeAllButton = new Button(UITheme.getText(ImageFileList.class, "RemoveAll"), UITheme.getIcon(ImageFileList.class, "RemoveAll"));
-    removeAllButton.addActionListener(new ActionListener() {
+    final Action removeAllAction = new AbstractAction(UITheme.getText(ImageFileList.class, "RemoveAll"), UITheme.getIcon(ImageFileList.class, "RemoveAll")) {
       public void actionPerformed(ActionEvent e) {
-        removeAllImages();
+        // removeAllImages();
+//        setStyle(getIconSize() + 5, !isAddShadow());
+        setIconSize(getIconSize() + 10);
+        // model.fireContentsChanged();
+        // refreshImages(getImages());
       }
-    });
+    };
+
+    list.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "removeSelectedImagesActionMapKey");
+    list.getActionMap().put("removeSelectedImagesActionMapKey", removeSelectedAction);
+
+    //
+    // list container
+
+    listScrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    listScrollPane.getViewport().setPreferredSize(list.getMinimumSize());
 
     //
     // layout
 
-    setLayout(new MigLayout("insets 0", "[fill][fill]push[fill]", "[fill, grow][fill]"));
-    add(listScrollPane, "spanx");
-    add(addButton);
-    add(removeSelectedButton);
-    add(removeAllButton);
+    if (addButtons) {
+      setLayout(new MigLayout("insets 0", "[fill][fill]push[fill]", "[fill, grow][fill]"));
+      add(listScrollPane, "spanx");
+      add(new Button(addImagesAction));
+      add(new Button(removeSelectedAction));
+      add(new Button(removeAllAction));
+    }
+
+    else {
+      setLayout(new GridLayout());
+      add(listScrollPane);
+    }
 
     //
     // set the minimum size
@@ -183,13 +199,48 @@ public class ImageFileList extends JPanel {
     setMinimumSize(new Dimension(0, getPreferredSize().height));
   }
 
-  public void addImage(final File file) {
+  public void setStyle(final int iconSize, final boolean addShadow) {
 
-    if (ImageFileFilter.getInstance().accept(file)) {
+    synchronized (ImageFileList.this) {
 
-      model.addImage(file);
-      renderer.refreshImage(this, model, file);
+      this.iconSize = iconSize;
+      this.addShadow = addShadow;
+
+      iconsLoader.clear();
+
+      icons.clear();
+
+      renderer.fireStylesChanged();
+      model.fireContentsChanged();
+
+      iconsLoader.add(getImages());
     }
+  }
+
+  public void setIconSize(int iconSize) {
+    setStyle(iconSize, addShadow);
+  }
+
+  public void setAddShadow(boolean addShadow) {
+    setStyle(iconSize, addShadow);
+  }
+
+  public int getIconSize() {
+    return iconSize;
+  }
+
+  public boolean isAddShadow() {
+    return addShadow;
+  }
+
+  public Icon getIcon(File file) {
+    synchronized (ImageFileList.this) {
+      return icons.get(file);
+    }
+  }
+
+  public void addImage(final File file) {
+    addImages(Arrays.asList(file));
   }
 
   public void addImages(final List<File> files) {
@@ -203,7 +254,8 @@ public class ImageFileList extends JPanel {
     }
 
     model.addImages(imageFiles);
-    renderer.refreshImages(this, model, imageFiles);
+
+    iconsLoader.add(imageFiles);
   }
 
   public File getSelectedImage() {
@@ -227,7 +279,12 @@ public class ImageFileList extends JPanel {
   }
 
   public void removeSelectedImages() {
+    int index = list.getSelectedIndex();
     model.removeImages(getSelectedImages());
+    if (index >= model.getSize()) {
+      index = model.getSize() - 1;
+    }
+    list.setSelectedIndex(index);
   }
 
   public void removeAllImages() {
@@ -236,14 +293,6 @@ public class ImageFileList extends JPanel {
 
   public int getImagesCount() {
     return model.size();
-  }
-
-  public void refreshImage(final File file) {
-    renderer.refreshImage(this, model, file);
-  }
-
-  public void refreshImages(final List<File> files) {
-    renderer.refreshImages(this, model, files);
   }
 
   public final void selectPrevImage() {
@@ -332,6 +381,88 @@ public class ImageFileList extends JPanel {
 
   public synchronized void removeListMouseWheelListener(final MouseWheelListener listener) {
     list.removeMouseWheelListener(listener);
+  }
+
+  //
+  // ---
+  //
+
+  public class IconsLoader extends Thread {
+
+    private final ImageThumbnails thumbnails = new ImageThumbnails();
+    private final LinkedList<File> files = new LinkedList<>();
+
+    private boolean skipCycle;
+
+    public IconsLoader() {
+      start();
+    }
+
+    public void add(final File file) {
+      synchronized (this.files) {
+        this.files.add(file);
+        this.files.notify();
+      }
+    }
+
+    public void add(final List<File> files) {
+      synchronized (this.files) {
+        this.files.addAll(files);
+        this.files.notify();
+      }
+    }
+
+    public void clear() {
+      synchronized (this.files) {
+        this.files.clear();
+        this.files.notify();
+        this.skipCycle = true;
+      }
+    }
+
+    public void run() {
+
+      while (true) {
+
+        skipCycle = false;
+
+        File file;
+
+        synchronized (files) {
+
+          if (files.isEmpty()) {
+
+            try {
+              files.wait();
+            } catch (InterruptedException e) {}
+
+            continue;
+          }
+
+          file = files.removeFirst();
+        }
+
+        BufferedImage image = thumbnails.get(file, iconSize, iconSize);
+
+        if (image != null) {
+
+          if (addShadow) {
+            image = ImageUtils.addShadow(image);
+          }
+
+          synchronized (ImageFileList.this) {
+
+            if (skipCycle) {
+              continue;
+            }
+
+            icons.put(file, new ImageIcon(image));
+          }
+
+          model.fireContentsChanged();
+        }
+      }
+    }
   }
 
 }
