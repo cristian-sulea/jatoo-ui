@@ -45,9 +45,9 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
 
   private final ImageFileList imageFileList;
 
-  private final JToggleButton button;
-
   private Icon defaultIcon;
+
+  private final JToggleButton button;
 
   public ImageFileListCellRenderer(final ImageFileList imageFileList) {
 
@@ -57,15 +57,14 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     button.setHorizontalTextPosition(SwingConstants.CENTER);
     button.setVerticalTextPosition(SwingConstants.BOTTOM);
 
-    setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
-
     setLayout(new GridLayout());
     add(button);
 
-    fireStylesChanged();
+    fireItemSpaceChanged();
+    fireIconStyleChanged();
   }
 
-  public void fireStylesChanged() {
+  public void fireIconStyleChanged() {
 
     //
     // default icon image
@@ -77,7 +76,7 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     defaultImageGraphics.drawImage(themeDefaultImage, (imageFileList.getIconSize() - themeDefaultImage.getWidth()) / 2, (imageFileList.getIconSize() - themeDefaultImage.getHeight()) / 2, null);
     defaultImageGraphics.dispose();
 
-    if (imageFileList.isAddShadow()) {
+    if (imageFileList.isIconShadow()) {
       defaultIconImage = ImageUtils.addShadow(defaultIconImage);
     }
 
@@ -94,6 +93,10 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
 
     setPreferredSize(null);
     setPreferredSize(getPreferredSize());
+  }
+
+  public void fireItemSpaceChanged() {
+    setBorder(BorderFactory.createEmptyBorder(imageFileList.getItemSpace(), imageFileList.getItemSpace(), 0, 0));
   }
 
   @Override

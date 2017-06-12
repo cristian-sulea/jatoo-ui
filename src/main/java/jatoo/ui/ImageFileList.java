@@ -69,7 +69,9 @@ public class ImageFileList extends JPanel {
   private final JScrollPane listScrollPane;
 
   private int iconSize;
-  private boolean addShadow;
+  private boolean iconShadow;
+
+  private int itemSpace;
 
   private final Map<File, Icon> icons = new HashMap<>();
   private IconsLoader iconsLoader = new IconsLoader();
@@ -79,21 +81,23 @@ public class ImageFileList extends JPanel {
   }
 
   public ImageFileList(final int rows, final int columns) {
-    this(rows, columns, 100);
+    this(rows, columns, 100, 35);
   }
 
-  public ImageFileList(final int rows, final int columns, final int iconSize) {
-    this(rows, columns, iconSize, true);
+  public ImageFileList(final int rows, final int columns, final int iconSize, final int itemSpace) {
+    this(rows, columns, iconSize, itemSpace, true);
   }
 
-  public ImageFileList(final int rows, final int columns, final int iconSize, final boolean addButtons) {
-    this(rows, columns, iconSize, addButtons, true);
+  public ImageFileList(final int rows, final int columns, final int iconSize, final int itemSpace, final boolean addButtons) {
+    this(rows, columns, iconSize, itemSpace, addButtons, true);
   }
 
-  public ImageFileList(final int rows, final int columns, final int iconSize, final boolean addButtons, final boolean addShadow) {
+  public ImageFileList(final int rows, final int columns, final int iconSize, final int itemSpace, final boolean addButtons, final boolean iconShadow) {
 
     this.iconSize = iconSize;
-    this.addShadow = addShadow;
+    this.iconShadow = iconShadow;
+
+    this.itemSpace = itemSpace;
 
     //
     // model and cell renderer
@@ -113,7 +117,7 @@ public class ImageFileList extends JPanel {
     list.setModel(model = new ImageFileListModel());
     list.setCellRenderer(renderer = new ImageFileListCellRenderer(this));
 
-    list.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 5));
+    list.setBorder(BorderFactory.createEmptyBorder(0, 0, itemSpace, itemSpace));
 
     //
     // dummy files for the initial minimum size
@@ -160,8 +164,10 @@ public class ImageFileList extends JPanel {
     final Action removeAllAction = new AbstractAction(UITheme.getText(ImageFileList.class, "RemoveAll"), UITheme.getIcon(ImageFileList.class, "RemoveAll")) {
       public void actionPerformed(ActionEvent e) {
         // removeAllImages();
-//        setStyle(getIconSize() + 5, !isAddShadow());
-        setIconSize(getIconSize() + 10);
+        // setStyle(getIconSize() + 5, !isAddShadow());
+        // setIconSize(getIconSize() + 10);
+        setItemSpace(getItemSpace() - 5);
+        // list.setBorder(BorderFactory.createEmptyBorder(100, 100, 55, 55));
         // model.fireContentsChanged();
         // refreshImages(getImages());
       }
@@ -199,38 +205,33 @@ public class ImageFileList extends JPanel {
     setMinimumSize(new Dimension(0, getPreferredSize().height));
   }
 
-  public void setStyle(final int iconSize, final boolean addShadow) {
-
-    synchronized (ImageFileList.this) {
-
-      this.iconSize = iconSize;
-      this.addShadow = addShadow;
-
-      iconsLoader.clear();
-
-      icons.clear();
-
-      renderer.fireStylesChanged();
-      model.fireContentsChanged();
-
-      iconsLoader.add(getImages());
-    }
-  }
-
   public void setIconSize(int iconSize) {
-    setStyle(iconSize, addShadow);
-  }
-
-  public void setAddShadow(boolean addShadow) {
-    setStyle(iconSize, addShadow);
+    setIconStyle(iconSize, iconShadow);
   }
 
   public int getIconSize() {
     return iconSize;
   }
 
-  public boolean isAddShadow() {
-    return addShadow;
+  public void setIconShadow(boolean iconShadow) {
+    setIconStyle(iconSize, iconShadow);
+  }
+
+  public boolean isIconShadow() {
+    return iconShadow;
+  }
+
+  public void setItemSpace(int itemSpace) {
+
+    this.itemSpace = itemSpace;
+
+    list.setBorder(BorderFactory.createEmptyBorder(0, 0, itemSpace, itemSpace));
+    renderer.fireItemSpaceChanged();
+    model.fireContentsChanged();
+  }
+
+  public int getItemSpace() {
+    return itemSpace;
   }
 
   public Icon getIcon(File file) {
@@ -387,6 +388,24 @@ public class ImageFileList extends JPanel {
   // ---
   //
 
+  private void setIconStyle(final int iconSize, final boolean iconShadow) {
+
+    synchronized (ImageFileList.this) {
+
+      this.iconSize = iconSize;
+      this.iconShadow = iconShadow;
+
+      iconsLoader.clear();
+
+      icons.clear();
+
+      renderer.fireIconStyleChanged();
+      model.fireContentsChanged();
+
+      iconsLoader.add(getImages());
+    }
+  }
+
   public class IconsLoader extends Thread {
 
     private final ImageThumbnails thumbnails = new ImageThumbnails();
@@ -446,7 +465,7 @@ public class ImageFileList extends JPanel {
 
         if (image != null) {
 
-          if (addShadow) {
+          if (iconShadow) {
             image = ImageUtils.addShadow(image);
           }
 
