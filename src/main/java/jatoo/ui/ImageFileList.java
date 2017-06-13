@@ -166,9 +166,7 @@ public class ImageFileList extends JPanel {
 
     final Action removeAllAction = new AbstractAction(UITheme.getText(ImageFileList.class, "RemoveAll"), UITheme.getIcon(ImageFileList.class, "RemoveAll")) {
       public void actionPerformed(ActionEvent e) {
-        // removeAllImages();
-        setItemSpace(getItemSpace() - 1);
-        setIconSize(getIconSize() + 5);
+        removeAllImages();
       }
     };
 
