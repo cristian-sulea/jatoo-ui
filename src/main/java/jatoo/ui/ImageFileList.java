@@ -28,7 +28,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -236,22 +235,13 @@ public class ImageFileList extends JPanel {
   }
 
   public void addImage(final File file) {
-    addImages(Arrays.asList(file));
+    model.addImage(file);
+    iconsLoader.add(file);
   }
 
   public void addImages(final List<File> files) {
-
-    List<File> imageFiles = new ArrayList<>(files.size());
-
-    for (File file : files) {
-      // if (ImageFileFilter.getInstance().accept(file)) {
-      imageFiles.add(file);
-      // }
-    }
-
-    model.addImages(imageFiles);
-
-    iconsLoader.add(imageFiles);
+    model.addImages(files);
+    iconsLoader.add(files);
   }
 
   public File getSelectedImage() {
