@@ -44,7 +44,7 @@ public class ImageFileListTest {
 
     final ImageFileList images = new ImageFileList();
 
-    for (File file : new File("c:\\Users\\cristian.sulea\\Downloads\\xxx\\").listFiles()) {
+    for (File file : new File("d:\\Temp XXX").listFiles()) {
       if (file.isFile()) {
         images.addImage(file);
         // break;
