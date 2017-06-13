@@ -51,16 +51,21 @@ import javax.swing.event.ListSelectionListener;
 import jatoo.image.ImageFileFilter;
 import jatoo.image.ImageThumbnails;
 import jatoo.image.ImageUtils;
+import jatoo.resources.ResourcesImages;
 import net.miginfocom.swing.MigLayout;
 
 /**
  * A component that displays a list of images from {@link File}s.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.0-SNAPSHOT, June 12, 2017
+ * @version 2.0-SNAPSHOT, June 13, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileList extends JPanel {
+
+  public static final ImageIcon ICON_ERROR = new ImageIcon();
+
+  private ResourcesImages resourcesImages = new ResourcesImages(getClass());
 
   private final JList<File> list;
   private final ImageFileListModel model;
@@ -77,11 +82,11 @@ public class ImageFileList extends JPanel {
   private IconsLoader iconsLoader = new IconsLoader();
 
   public ImageFileList() {
-    this(2, 3);
+    this(3, 4);
   }
 
   public ImageFileList(final int rows, final int columns) {
-    this(rows, columns, 100, 35);
+    this(rows, columns, 100, 5);
   }
 
   public ImageFileList(final int rows, final int columns, final int iconSize, final int itemSpace) {
@@ -120,9 +125,7 @@ public class ImageFileList extends JPanel {
     list.setBorder(BorderFactory.createEmptyBorder(0, 0, itemSpace, itemSpace));
 
     //
-    // dummy files for the initial minimum size
-    // do not set preferred size, scroll panes go crazy
-    // scrollPane.getViewport().setPreferredSize(list.getMinimumSize());
+    // dummy files for the scroll pane (viewport) preferred size
 
     list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
     list.setVisibleRowCount(rows);
@@ -131,7 +134,7 @@ public class ImageFileList extends JPanel {
       model.addImage(new File(""));
     }
 
-    list.setMinimumSize(list.getPreferredSize());
+    Dimension viewportPreferredSize = list.getPreferredSize();
 
     model.removeAllImages();
 
@@ -164,12 +167,8 @@ public class ImageFileList extends JPanel {
     final Action removeAllAction = new AbstractAction(UITheme.getText(ImageFileList.class, "RemoveAll"), UITheme.getIcon(ImageFileList.class, "RemoveAll")) {
       public void actionPerformed(ActionEvent e) {
         // removeAllImages();
-        // setStyle(getIconSize() + 5, !isAddShadow());
-        // setIconSize(getIconSize() + 10);
-        setItemSpace(getItemSpace() - 5);
-        // list.setBorder(BorderFactory.createEmptyBorder(100, 100, 55, 55));
-        // model.fireContentsChanged();
-        // refreshImages(getImages());
+        setItemSpace(getItemSpace() - 1);
+        setIconSize(getIconSize() + 5);
       }
     };
 
@@ -180,7 +179,7 @@ public class ImageFileList extends JPanel {
     // list container
 
     listScrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    listScrollPane.getViewport().setPreferredSize(list.getMinimumSize());
+    listScrollPane.getViewport().setPreferredSize(viewportPreferredSize);
 
     //
     // layout
@@ -197,12 +196,10 @@ public class ImageFileList extends JPanel {
       setLayout(new GridLayout());
       add(listScrollPane);
     }
+  }
 
-    //
-    // set the minimum size
-    // actually the height (to not be smaller than the specified rows)
-
-    setMinimumSize(new Dimension(0, getPreferredSize().height));
+  public ResourcesImages getResourcesImages() {
+    return resourcesImages;
   }
 
   public void setIconSize(int iconSize) {
@@ -249,9 +246,9 @@ public class ImageFileList extends JPanel {
     List<File> imageFiles = new ArrayList<>(files.size());
 
     for (File file : files) {
-      if (ImageFileFilter.getInstance().accept(file)) {
-        imageFiles.add(file);
-      }
+      // if (ImageFileFilter.getInstance().accept(file)) {
+      imageFiles.add(file);
+      // }
     }
 
     model.addImages(imageFiles);
@@ -461,25 +458,40 @@ public class ImageFileList extends JPanel {
           file = files.removeFirst();
         }
 
-        BufferedImage image = thumbnails.get(file, iconSize, iconSize);
+        final ImageIcon icon;
 
-        if (image != null) {
+        if (ImageFileFilter.getInstance().accept(file)) {
 
-          if (iconShadow) {
-            image = ImageUtils.addShadow(image);
-          }
+          BufferedImage image = thumbnails.get(file, iconSize, iconSize);
 
-          synchronized (ImageFileList.this) {
+          if (image != null) {
 
-            if (skipCycle) {
-              continue;
+            if (iconShadow) {
+              image = ImageUtils.addShadow(image);
             }
 
-            icons.put(file, new ImageIcon(image));
+            icon = new ImageIcon(image);
           }
 
-          model.fireContentsChanged();
+          else {
+            icon = ICON_ERROR;
+          }
         }
+
+        else {
+          icon = ICON_ERROR;
+        }
+
+        synchronized (ImageFileList.this) {
+
+          if (skipCycle) {
+            continue;
+          }
+
+          icons.put(file, icon);
+        }
+
+        model.fireContentsChanged();
       }
     }
   }

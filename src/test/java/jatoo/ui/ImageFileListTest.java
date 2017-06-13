@@ -41,6 +41,7 @@ public class ImageFileListTest {
     for (File file : new File("c:\\Users\\cristian.sulea\\Downloads\\xxx\\").listFiles()) {
       if (file.isFile()) {
         images.addImage(file);
+//        break;
       }
     }
 
