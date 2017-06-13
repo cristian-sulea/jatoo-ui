@@ -92,35 +92,11 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     setPreferredSize(getPreferredSize());
   }
 
-  private Icon createIcon(final Image baseIconImage, final Image baseIconImageXXX) {
-
-    int iconWidth = imageFileList.getIconSize();
-    int iconHeight = iconWidth;
-
-    int baseWidth = baseIconImage.getWidth(null);
-    int baseHeight = baseIconImage.getHeight(null);
-
-    int xxxWidth = baseIconImageXXX.getWidth(null);
-    int xxxHeight = baseIconImageXXX.getHeight(null);
-
-    BufferedImage image = ImageUtils.create(iconWidth, iconHeight, true);
-    Graphics defaultImageGraphics = image.getGraphics();
-    defaultImageGraphics.drawImage(baseIconImage, (iconWidth - baseWidth) / 2, (iconHeight - baseHeight) / 2, null);
-    defaultImageGraphics.drawImage(baseIconImageXXX, (iconWidth - baseWidth) / 2 + baseWidth - xxxWidth, (iconHeight - baseHeight) / 2 + baseHeight - xxxHeight, null);
-    defaultImageGraphics.dispose();
-
-    if (imageFileList.isIconShadow()) {
-      image = ImageUtils.addShadow(image);
-    }
-
-    return new ImageIcon(image);
-  }
-
   public void fireItemSpaceChanged() {
     setBorder(BorderFactory.createEmptyBorder(imageFileList.getItemSpace(), imageFileList.getItemSpace(), 0, 0));
 
-    // setPreferredSize(null);
-    // setPreferredSize(getPreferredSize());
+    setPreferredSize(null);
+    setPreferredSize(getPreferredSize());
   }
 
   @Override
@@ -161,6 +137,30 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     // here we go
 
     return this;
+  }
+
+  private Icon createIcon(final Image baseIconImage, final Image baseIconImageXXX) {
+
+    int iconWidth = imageFileList.getIconSize();
+    int iconHeight = iconWidth;
+
+    int baseWidth = baseIconImage.getWidth(null);
+    int baseHeight = baseIconImage.getHeight(null);
+
+    int xxxWidth = baseIconImageXXX.getWidth(null);
+    int xxxHeight = baseIconImageXXX.getHeight(null);
+
+    BufferedImage image = ImageUtils.create(iconWidth, iconHeight, true);
+    Graphics defaultImageGraphics = image.getGraphics();
+    defaultImageGraphics.drawImage(baseIconImage, (iconWidth - baseWidth) / 2, (iconHeight - baseHeight) / 2, null);
+    defaultImageGraphics.drawImage(baseIconImageXXX, (iconWidth - baseWidth) / 2 + baseWidth - xxxWidth, (iconHeight - baseHeight) / 2 + baseHeight - xxxHeight, null);
+    defaultImageGraphics.dispose();
+
+    if (imageFileList.isIconShadow()) {
+      image = ImageUtils.addShadow(image);
+    }
+
+    return new ImageIcon(image);
   }
 
 }
