@@ -52,6 +52,11 @@
       <artifactId>jatoo-image</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>net.sulea.cristian</groupId>
+      <artifactId>jatoo-resources</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>com.miglayout</groupId>
