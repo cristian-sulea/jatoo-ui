@@ -16,8 +16,6 @@
 
 package jatoo.ui;
 
-import jatoo.image.ImageUtils;
-
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -26,9 +24,10 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 
+import jatoo.image.ImageUtils;
+
 /**
- * A "canvas" component where images can be painted, one at a time. Some rules
- * are applied to the painted image:
+ * A "canvas" component where images can be painted, one at a time. Some rules are applied to the painted image:
  * <ul>
  * <li>the image will be resized to fit the max size of the canvas</li>
  * <li>the ratio will be preserved</li>
@@ -36,7 +35,7 @@ import javax.swing.JComponent;
  * </ul>
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.2, July 15, 2014
+ * @version 1.3, June 14, 2017
  */
 @SuppressWarnings("serial")
 public class ImageCanvas extends JComponent {
@@ -57,12 +56,10 @@ public class ImageCanvas extends JComponent {
    */
   public ImageCanvas(final BufferedImage image) {
     this.image = image;
-    setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
   }
 
   /**
-   * Updates the image this canvas will paint. If the value is null, nothing
-   * will be painted.
+   * Updates the image this canvas will paint. If the value is null, nothing will be painted.
    * 
    * @param image
    *          the {@link BufferedImage} to be painted
@@ -75,8 +72,7 @@ public class ImageCanvas extends JComponent {
   /**
    * Returns the image this canvas paints.
    * 
-   * @return the {@link BufferedImage} this canvas is painting, or
-   *         <code>null</code> if there is no image to be painted
+   * @return the {@link BufferedImage} this canvas is painting, or <code>null</code> if there is no image to be painted
    */
   public final BufferedImage getImage() {
     return image;
