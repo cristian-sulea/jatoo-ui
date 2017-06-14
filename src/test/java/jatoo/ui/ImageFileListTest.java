@@ -22,32 +22,42 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class ImageFileListTest {
+@SuppressWarnings("serial")
+public class ImageFileListTest extends JPanel {
 
-  @SuppressWarnings("serial")
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
+    new TestFrame(ImageFileListTest.class);
+  }
 
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+  public ImageFileListTest() throws Exception {
 
     final ImageFileList images = new ImageFileList();
 
-    for (File file : new File("d:\\Temp XXX").listFiles()) {
+    for (File file : new File("src\\test\\resources\\jatoo\\ui\\").listFiles()) {
       if (file.isFile()) {
-        images.addImage(file);
-        // break;
+
+        for (int i = 0; i < 5; i++) {
+
+          File newFile = new File("target\\test-" + ImageFileListTest.class.getSimpleName(), (i + 1) + "-" + file.getName());
+          newFile.getParentFile().mkdirs();
+
+          Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+          images.addImage(newFile);
+        }
       }
     }
 
@@ -64,13 +74,12 @@ public class ImageFileListTest {
     images.addListMouseListener(new MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() >= 2) {
-
           System.out.println("yyy: " + images.getSelectedImage());
         }
       }
     });
 
-    final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
     buttons.add(new JButton(new AbstractAction("-5 Icon Size") {
       public void actionPerformed(ActionEvent e) {
@@ -99,19 +108,10 @@ public class ImageFileListTest {
       }
     }));
 
-    final JPanel cp = new JPanel(new BorderLayout(5, 5));
-    cp.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    cp.add(images, BorderLayout.CENTER);
-    cp.add(buttons, BorderLayout.NORTH);
-
-    final JFrame frame = new JFrame(ImageFileList.class.getSimpleName() + " Test");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setContentPane(cp);
-    // frame.setSize(800, 600);
-    frame.pack();
-    frame.setLocationRelativeTo(null);
-    // frame.setLocation(600, 500);
-    frame.setVisible(true);
+    setLayout(new BorderLayout(5, 5));
+    setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    add(images, BorderLayout.CENTER);
+    add(buttons, BorderLayout.NORTH);
   }
 
 }

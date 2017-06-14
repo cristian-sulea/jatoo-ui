@@ -33,10 +33,10 @@ public class ImageCanvasTest {
     
     BufferedImage image = ImageUtils.create(400, 300, false);
 
-//    ImageCanvas imageCanvas = new ImageCanvas(image);
+    ImageCanvas imageCanvas = new ImageCanvas(null);
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
-    final ImageViewer imageCanvas = new ImageViewer(image);
+//    final ImageViewer imageCanvas = new ImageViewer(image);
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
     final JFrame frame = new JFrame(ImageCanvasTest.class.getSimpleName());
@@ -45,8 +45,8 @@ public class ImageCanvasTest {
     frame.getContentPane().setLayout(new GridLayout());
     frame.getContentPane().add(imageCanvas);
 
-     frame.setSize(100, 150);
-//    frame.pack();
+//     frame.setSize(100, 150);
+    frame.pack();
     frame.setLocation(700, 600);
 
 //    imageCanvas.setZoom(100);
