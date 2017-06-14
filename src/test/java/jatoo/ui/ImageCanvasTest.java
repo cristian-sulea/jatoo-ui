@@ -16,58 +16,42 @@
 
 package jatoo.ui;
 
-import jatoo.image.ImageUtils;
+import java.io.File;
 
-import java.awt.GridLayout;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-public class ImageCanvasTest {
+import jatoo.image.ImageUtils;
 
-  public static void main(String[] args) throws Exception {
+@SuppressWarnings("serial")
+public class ImageCanvasTest extends JPanel {
 
-    System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
-    System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "debug");
-    
-    BufferedImage image = ImageUtils.create(400, 300, false);
+  public static void main(String[] args) {
 
-    ImageCanvas imageCanvas = new ImageCanvas(null);
-//    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
+    final ImageCanvas imageCanvas = new ImageCanvas();
 
-//    final ImageViewer imageCanvas = new ImageViewer(image);
-//    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
+    new TestFrame(imageCanvas, 400, 400);
 
-    final JFrame frame = new JFrame(ImageCanvasTest.class.getSimpleName());
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    for (File file : new File("src\\test\\resources\\jatoo\\ui\\").listFiles()) {
+      if (file.isFile()) {
 
-    frame.getContentPane().setLayout(new GridLayout());
-    frame.getContentPane().add(imageCanvas);
+        SwingUtilities.invokeLater(new Runnable() {
+          public void run() {
+            try {
+              imageCanvas.setImage(ImageUtils.read(file));
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+          }
+        });
 
-//     frame.setSize(100, 150);
-    frame.pack();
-    frame.setLocation(700, 600);
-
-//    imageCanvas.setZoom(100);
-    frame.setVisible(true);
-    
-    Thread.sleep(2000);
-    
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
         try {
-//          Thread.sleep(2000);
-          System.out.println("zoom");
-//          imageCanvas.setZoom(100);
-//          frame.invalidate();
-//          frame.validate();
-//          frame.revalidate();
+          Thread.sleep(5000);
         } catch (Exception e) {
           e.printStackTrace();
         }
       }
-    });
+    }
   }
 
 }

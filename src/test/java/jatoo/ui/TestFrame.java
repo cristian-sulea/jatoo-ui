@@ -17,6 +17,7 @@
 package jatoo.ui;
 
 import java.awt.Container;
+import java.awt.Dimension;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
@@ -40,18 +41,26 @@ public class TestFrame extends JFrame {
     }
   }
 
-  public TestFrame(Class<? extends Container> container) {
-    super(container.getSimpleName());
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  public TestFrame(Container container) {
+    this(container, null);
+  }
 
-    try {
-      setContentPane(container.newInstance());
+  public TestFrame(Container container, int width, int height) {
+    this(container, new Dimension(width, height));
+  }
+
+  public TestFrame(Container container, Dimension size) {
+    super(container.getClass().getSimpleName());
+
+    setContentPane(container);
+
+    if (size == null) {
       pack();
-    } catch (InstantiationException | IllegalAccessException e) {
-      LogFactory.getLog(TestFrame.class).error("container.newInstance()", e);
-      setSize(400, 300);
+    } else {
+      setSize(size);
     }
 
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setLocationRelativeTo(null);
     setVisible(true);
   }

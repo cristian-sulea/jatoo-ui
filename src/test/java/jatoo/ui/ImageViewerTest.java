@@ -29,6 +29,9 @@ public class ImageViewerTest {
 
   public static void main(String[] args) throws Exception {
 
+    System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
+    System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "trace");
+    
     BufferedImage image = ImageUtils.read(new File("src\\test\\resources\\jatoo\\ui\\").listFiles()[0]);
 
 //    ImageCanvas imageCanvas = new ImageCanvas(image);

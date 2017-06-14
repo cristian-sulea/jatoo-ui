@@ -38,8 +38,8 @@ import javax.swing.event.ListSelectionListener;
 @SuppressWarnings("serial")
 public class ImageFileListTest extends JPanel {
 
-  public static void main(String[] args) {
-    new TestFrame(ImageFileListTest.class);
+  public static void main(String[] args) throws Exception {
+    new TestFrame(new ImageFileListTest());
   }
 
   public ImageFileListTest() throws Exception {
