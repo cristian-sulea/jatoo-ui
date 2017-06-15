@@ -54,8 +54,6 @@ import net.miginfocom.swing.MigLayout;
 @SuppressWarnings("serial")
 public class ImageFileList extends JPanel {
 
-  public static final ImageIcon ICON_ERROR = new ImageIcon();
-
   private ResourcesImages resourcesImages = new ResourcesImages(getClass());
 
   private final JList<File> list;
@@ -230,12 +228,12 @@ public class ImageFileList extends JPanel {
 
   public void addImage(final File file) {
     model.addImage(file);
-    icons.add(file);
+    icons.addToLoadingQueue(file);
   }
 
   public void addImages(final List<File> files) {
     model.addImages(files);
-    icons.add(files);
+    icons.addToLoadingQueue(files);
   }
 
   public File getSelectedImage() {
@@ -397,7 +395,7 @@ public class ImageFileList extends JPanel {
       renderer.fireIconStyleChanged();
       model.fireContentsChanged();
 
-      icons.add(getImages());
+      icons.addToLoadingQueue(getImages());
     }
   }
 

@@ -107,7 +107,7 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     //
     // icon
 
-    Icon icon = icons.getIcon(file);
+    Icon icon = icons.get(file);
 
     if (icon == null) {
       button.setIcon(iconLoading);
@@ -115,7 +115,7 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
 
     else {
 
-      if (icon == ImageFileList.ICON_ERROR) {
+      if (icon == ImageFileListIcons.ICON_ERROR) {
         button.setIcon(iconError);
       }
 

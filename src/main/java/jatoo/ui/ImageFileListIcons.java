@@ -14,7 +14,15 @@ import jatoo.image.ImageFileFilter;
 import jatoo.image.ImageThumbnails;
 import jatoo.image.ImageUtils;
 
+/**
+ * The icons loader for {@link ImageFileList} component.
+ * 
+ * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
+ * @version 1.0-SNAPSHOT, June 15, 2017
+ */
 public class ImageFileListIcons extends Thread {
+
+  public static final ImageIcon ICON_ERROR = new ImageIcon();
 
   private final ImageThumbnails thumbnails = new ImageThumbnails();
 
@@ -30,17 +38,23 @@ public class ImageFileListIcons extends Thread {
     start();
   }
 
-  public void add(final File file) {
+  public void addToLoadingQueue(final File file) {
     synchronized (this.files) {
       this.files.add(file);
       this.files.notify();
     }
   }
 
-  public void add(final List<File> files) {
+  public void addToLoadingQueue(final List<File> files) {
     synchronized (this.files) {
       this.files.addAll(files);
       this.files.notify();
+    }
+  }
+
+  public Icon get(File file) {
+    synchronized (this.icons) {
+      return icons.get(file);
     }
   }
 
@@ -55,12 +69,6 @@ public class ImageFileListIcons extends Thread {
     synchronized (this.files) {
       this.files.clear();
       this.files.notify();
-    }
-  }
-
-  public Icon getIcon(File file) {
-    synchronized (this.icons) {
-      return icons.get(file);
     }
   }
 
@@ -102,12 +110,12 @@ public class ImageFileListIcons extends Thread {
         }
 
         else {
-          icon = ImageFileList.ICON_ERROR;
+          icon = ImageFileListIcons.ICON_ERROR;
         }
       }
 
       else {
-        icon = ImageFileList.ICON_ERROR;
+        icon = ImageFileListIcons.ICON_ERROR;
       }
 
       if (skipCycle) {
