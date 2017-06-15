@@ -33,12 +33,13 @@ public class TestFrame extends JFrame {
     System.setProperty("org.apache.commons.logging.Log", "org.apache.commons.logging.impl.SimpleLog");
     System.setProperty("org.apache.commons.logging.simplelog.defaultlog", "trace");
 
-    try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-      e.printStackTrace();
-      LogFactory.getLog(TestFrame.class).error("LookAndFeel Error", e);
-    }
+    UIUtils.setSystemLookAndFeel();
+//    try {
+//      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+//      e.printStackTrace();
+//      LogFactory.getLog(TestFrame.class).error("LookAndFeel Error", e);
+//    }
   }
 
   public TestFrame(Container container) {
