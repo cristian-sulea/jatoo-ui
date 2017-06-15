@@ -38,21 +38,24 @@ import jatoo.image.ImageUtils;
  * The cell renderer for {@link ImageFileList} component.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.0-SNAPSHOT, June 13, 2017
+ * @version 2.0-SNAPSHOT, June 15, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileListCellRenderer extends JComponent implements ListCellRenderer<File> {
 
-  private final ImageFileList imageFileList;
+  private final ImageFileList list;
+  private final ImageFileListIcons icons;
 
-  private Icon loadingIcon;
-  private Icon errorIcon;
+  // private Icon icon;
+  private Icon iconLoading;
+  private Icon iconError;
 
   private final JToggleButton button;
 
-  public ImageFileListCellRenderer(final ImageFileList imageFileList) {
+  public ImageFileListCellRenderer(final ImageFileList list, final ImageFileListIcons icons) {
 
-    this.imageFileList = imageFileList;
+    this.list = list;
+    this.icons = icons;
 
     button = new JToggleButton();
     button.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -68,31 +71,25 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
   public void fireIconStyleChanged() {
 
     //
-    // default icon image
+    // update icons
 
-    Image baseIconImage = imageFileList.getResourcesImages().getImage("ImageFileList.baseIconImage.png");
-
-    Image baseIconImageLoading = imageFileList.getResourcesImages().getImage("ImageFileList.baseIconImageLoading.png");
-    Image baseIconImageError = imageFileList.getResourcesImages().getImage("ImageFileList.baseIconImageError.png");
-
-    //
-    // set the new values
-
-    this.loadingIcon = createIcon(baseIconImage, baseIconImageLoading);
-    this.errorIcon = createIcon(baseIconImage, baseIconImageError);
+    // icon = createIcon(list.getResourcesImages().getImage("ImageFileList.Icon.png"));
+    iconLoading = createIcon(list.getResourcesImages().getImage("ImageFileList.IconLoading.png"));
+    iconError = createIcon(list.getResourcesImages().getImage("ImageFileList.IconError.png"));
 
     //
     // set dummy text and loading icon for the initial preferred size
 
     button.setText("text");
-    button.setIcon(loadingIcon);
+    button.setIcon(iconLoading);
 
     setPreferredSize(null);
     setPreferredSize(getPreferredSize());
   }
 
   public void fireItemSpaceChanged() {
-    setBorder(BorderFactory.createEmptyBorder(imageFileList.getItemSpace(), imageFileList.getItemSpace(), 0, 0));
+
+    setBorder(BorderFactory.createEmptyBorder(list.getItemSpace(), list.getItemSpace(), 0, 0));
 
     setPreferredSize(null);
     setPreferredSize(getPreferredSize());
@@ -110,16 +107,16 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     //
     // icon
 
-    Icon icon = imageFileList.getIcon(file);
+    Icon icon = icons.getIcon(file);
 
     if (icon == null) {
-      button.setIcon(loadingIcon);
+      button.setIcon(iconLoading);
     }
 
     else {
 
       if (icon == ImageFileList.ICON_ERROR) {
-        button.setIcon(errorIcon);
+        button.setIcon(iconError);
       }
 
       else {
@@ -138,24 +135,20 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     return this;
   }
 
-  private Icon createIcon(final Image baseIconImage, final Image baseIconImageXXX) {
+  private Icon createIcon(final Image icon) {
 
-    int iconWidth = imageFileList.getIconSize();
+    int iconWidth = list.getIconSize();
     int iconHeight = iconWidth;
 
-    int baseWidth = baseIconImage.getWidth(null);
-    int baseHeight = baseIconImage.getHeight(null);
-
-    int xxxWidth = baseIconImageXXX.getWidth(null);
-    int xxxHeight = baseIconImageXXX.getHeight(null);
+    int baseWidth = icon.getWidth(null);
+    int baseHeight = icon.getHeight(null);
 
     BufferedImage image = ImageUtils.create(iconWidth, iconHeight, true);
     Graphics defaultImageGraphics = image.getGraphics();
-    defaultImageGraphics.drawImage(baseIconImage, (iconWidth - baseWidth) / 2, (iconHeight - baseHeight) / 2, null);
-    defaultImageGraphics.drawImage(baseIconImageXXX, (iconWidth - baseWidth) / 2 + baseWidth - xxxWidth, (iconHeight - baseHeight) / 2 + baseHeight - xxxHeight, null);
+    defaultImageGraphics.drawImage(icon, (iconWidth - baseWidth) / 2, (iconHeight - baseHeight) / 2, null);
     defaultImageGraphics.dispose();
 
-    if (imageFileList.isIconShadow()) {
+    if (list.isIconShadow()) {
       image = ImageUtils.addShadow(image);
     }
 

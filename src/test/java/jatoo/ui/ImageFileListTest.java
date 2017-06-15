@@ -44,7 +44,13 @@ public class ImageFileListTest extends JPanel {
 
   public ImageFileListTest() throws Exception {
 
-    final ImageFileList images = new ImageFileList();
+    final ImageFileList images = new ImageFileList(4, 5);
+
+    for (File file : new File("src\\test\\java\\jatoo\\ui\\").listFiles()) {
+      if (file.isFile()) {
+        images.addImage(file);
+      }
+    }
 
     for (File file : new File("src\\test\\resources\\jatoo\\ui\\").listFiles()) {
       if (file.isFile()) {
@@ -71,7 +77,7 @@ public class ImageFileListTest extends JPanel {
       }
     });
 
-    images.addListMouseListener(new MouseAdapter() {
+    images.addMouseListener(new MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() >= 2) {
           System.out.println("yyy: " + images.getSelectedImage());

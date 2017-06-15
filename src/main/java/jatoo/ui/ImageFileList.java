@@ -25,18 +25,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
@@ -46,8 +41,6 @@ import javax.swing.KeyStroke;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionListener;
 
-import jatoo.image.ImageFileFilter;
-import jatoo.image.ImageThumbnails;
 import jatoo.image.ImageUtils;
 import jatoo.resources.ResourcesImages;
 import net.miginfocom.swing.MigLayout;
@@ -56,7 +49,7 @@ import net.miginfocom.swing.MigLayout;
  * A component that displays a list of images from {@link File}s.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.0-SNAPSHOT, June 13, 2017
+ * @version 2.0-SNAPSHOT, June 15, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileList extends JPanel {
@@ -66,6 +59,8 @@ public class ImageFileList extends JPanel {
   private ResourcesImages resourcesImages = new ResourcesImages(getClass());
 
   private final JList<File> list;
+
+  private final ImageFileListIcons icons;
   private final ImageFileListModel model;
   private final ImageFileListCellRenderer renderer;
 
@@ -75,9 +70,6 @@ public class ImageFileList extends JPanel {
   private boolean iconShadow;
 
   private int itemSpace;
-
-  private final Map<File, Icon> icons = new HashMap<>();
-  private IconsLoader iconsLoader = new IconsLoader();
 
   public ImageFileList() {
     this(3, 4);
@@ -103,7 +95,11 @@ public class ImageFileList extends JPanel {
     this.itemSpace = itemSpace;
 
     //
-    // model and cell renderer
+    // init list
+
+    icons = new ImageFileListIcons(this);
+    model = new ImageFileListModel();
+    renderer = new ImageFileListCellRenderer(this, icons);
 
     final int listScrollableUnitIncrement = Math.max(9, iconSize / 10);
 
@@ -117,8 +113,8 @@ public class ImageFileList extends JPanel {
         }
       }
     };
-    list.setModel(model = new ImageFileListModel());
-    list.setCellRenderer(renderer = new ImageFileListCellRenderer(this));
+    list.setModel(model);
+    list.setCellRenderer(renderer);
 
     list.setBorder(BorderFactory.createEmptyBorder(0, 0, itemSpace, itemSpace));
 
@@ -178,6 +174,11 @@ public class ImageFileList extends JPanel {
     listScrollPane.getViewport().setPreferredSize(viewportPreferredSize);
 
     //
+    // the method is overridden so use "super" to nullify the border
+
+    super.setBorder(null);
+
+    //
     // layout
 
     if (addButtons) {
@@ -227,20 +228,14 @@ public class ImageFileList extends JPanel {
     return itemSpace;
   }
 
-  public Icon getIcon(File file) {
-    synchronized (ImageFileList.this) {
-      return icons.get(file);
-    }
-  }
-
   public void addImage(final File file) {
     model.addImage(file);
-    iconsLoader.add(file);
+    icons.add(file);
   }
 
   public void addImages(final List<File> files) {
     model.addImages(files);
-    iconsLoader.add(files);
+    icons.add(files);
   }
 
   public File getSelectedImage() {
@@ -320,21 +315,33 @@ public class ImageFileList extends JPanel {
     list.setSelectedIndex(index);
   }
 
-  public void setListBorder(final Border border) {
-    listScrollPane.setBorder(border);
+  public void fireContentsChanged() {
+    model.fireContentsChanged();
   }
 
-  public Border getListBorder() {
-    return listScrollPane.getBorder();
-  }
+  //
+  // --- delegate methods
+  //
 
-  public void setListBackground(final Color background) {
-    list.setBackground(background);
-  }
+//  @Override
+//  public void setBorder(Border border) {
+//    listScrollPane.setBorder(border);
+//  }
+//
+//  @Override
+//  public Border getBorder() {
+//    return listScrollPane.getBorder();
+//  }
 
-  public Color getListBackground() {
-    return list.getBackground();
-  }
+//  @Override
+//  public void setBackground(Color bg) {
+//    list.setBackground(bg);
+//  }
+//
+//  @Override
+//  public Color getBackground() {
+//    return list.getBackground();
+//  }
 
   public synchronized void addListSelectionListener(final ListSelectionListener listener) {
     list.addListSelectionListener(listener);
@@ -344,32 +351,38 @@ public class ImageFileList extends JPanel {
     list.removeListSelectionListener(listener);
   }
 
-  public synchronized void addListMouseListener(final MouseListener listener) {
+  @Override
+  public synchronized void addMouseListener(final MouseListener listener) {
     list.addMouseListener(listener);
   }
 
-  public synchronized void removeListMouseListener(final MouseListener listener) {
+  @Override
+  public synchronized void removeMouseListener(final MouseListener listener) {
     list.removeMouseListener(listener);
   }
 
-  public synchronized void addListMouseMotionListener(final MouseMotionListener listener) {
+  @Override
+  public synchronized void addMouseMotionListener(final MouseMotionListener listener) {
     list.addMouseMotionListener(listener);
   }
 
-  public synchronized void removeListMouseMotionListener(final MouseMotionListener listener) {
+  @Override
+  public synchronized void removeMouseMotionListener(final MouseMotionListener listener) {
     list.removeMouseMotionListener(listener);
   }
 
-  public synchronized void addListMouseWheelListener(final MouseWheelListener listener) {
+  @Override
+  public synchronized void addMouseWheelListener(final MouseWheelListener listener) {
     list.addMouseWheelListener(listener);
   }
 
-  public synchronized void removeListMouseWheelListener(final MouseWheelListener listener) {
+  @Override
+  public synchronized void removeMouseWheelListener(final MouseWheelListener listener) {
     list.removeMouseWheelListener(listener);
   }
 
   //
-  // ---
+  // --- private methods
   //
 
   private void setIconStyle(final int iconSize, final boolean iconShadow) {
@@ -379,107 +392,12 @@ public class ImageFileList extends JPanel {
       this.iconSize = iconSize;
       this.iconShadow = iconShadow;
 
-      iconsLoader.clear();
-
       icons.clear();
 
       renderer.fireIconStyleChanged();
       model.fireContentsChanged();
 
-      iconsLoader.add(getImages());
-    }
-  }
-
-  public class IconsLoader extends Thread {
-
-    private final ImageThumbnails thumbnails = new ImageThumbnails();
-    private final LinkedList<File> files = new LinkedList<>();
-
-    private boolean skipCycle;
-
-    public IconsLoader() {
-      start();
-    }
-
-    public void add(final File file) {
-      synchronized (this.files) {
-        this.files.add(file);
-        this.files.notify();
-      }
-    }
-
-    public void add(final List<File> files) {
-      synchronized (this.files) {
-        this.files.addAll(files);
-        this.files.notify();
-      }
-    }
-
-    public void clear() {
-      synchronized (this.files) {
-        this.files.clear();
-        this.files.notify();
-        this.skipCycle = true;
-      }
-    }
-
-    public void run() {
-
-      while (true) {
-
-        skipCycle = false;
-
-        File file;
-
-        synchronized (files) {
-
-          if (files.isEmpty()) {
-
-            try {
-              files.wait();
-            } catch (InterruptedException e) {}
-
-            continue;
-          }
-
-          file = files.removeFirst();
-        }
-
-        final ImageIcon icon;
-
-        if (ImageFileFilter.getInstance().accept(file)) {
-
-          BufferedImage image = thumbnails.get(file, iconSize, iconSize);
-
-          if (image != null) {
-
-            if (iconShadow) {
-              image = ImageUtils.addShadow(image);
-            }
-
-            icon = new ImageIcon(image);
-          }
-
-          else {
-            icon = ICON_ERROR;
-          }
-        }
-
-        else {
-          icon = ICON_ERROR;
-        }
-
-        synchronized (ImageFileList.this) {
-
-          if (skipCycle) {
-            continue;
-          }
-
-          icons.put(file, icon);
-        }
-
-        model.fireContentsChanged();
-      }
+      icons.add(getImages());
     }
   }
 
