@@ -32,7 +32,6 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -49,7 +48,7 @@ import net.miginfocom.swing.MigLayout;
  * A component that displays a list of images from {@link File}s.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.0-SNAPSHOT, June 15, 2017
+ * @version 2.0-SNAPSHOT, June 16, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileList extends JPanel {
@@ -62,12 +61,14 @@ public class ImageFileList extends JPanel {
   private final ImageFileListModel model;
   private final ImageFileListCellRenderer renderer;
 
-  private final JScrollPane listScrollPane;
+  private final JScrollPane scrollPane;
 
   private int iconSize;
   private boolean iconShadow;
 
   private int itemSpace;
+
+  private final boolean isInitializationDone;
 
   public ImageFileList() {
     this(3, 4);
@@ -168,8 +169,8 @@ public class ImageFileList extends JPanel {
     //
     // list container
 
-    listScrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    listScrollPane.getViewport().setPreferredSize(viewportPreferredSize);
+    scrollPane = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    scrollPane.getViewport().setPreferredSize(viewportPreferredSize);
 
     //
     // the method is overridden so use "super" to nullify the border
@@ -181,7 +182,7 @@ public class ImageFileList extends JPanel {
 
     if (addButtons) {
       setLayout(new MigLayout("insets 0", "[fill][fill]push[fill]", "[fill, grow][fill]"));
-      add(listScrollPane, "spanx");
+      add(scrollPane, "spanx");
       add(new Button(addImagesAction));
       add(new Button(removeSelectedAction));
       add(new Button(removeAllAction));
@@ -189,8 +190,13 @@ public class ImageFileList extends JPanel {
 
     else {
       setLayout(new GridLayout());
-      add(listScrollPane);
+      add(scrollPane);
     }
+
+    //
+    //
+
+    isInitializationDone = true;
   }
 
   public ResourcesImages getResourcesImages() {
@@ -313,33 +319,49 @@ public class ImageFileList extends JPanel {
     list.setSelectedIndex(index);
   }
 
-  public void fireContentsChanged() {
-    model.fireContentsChanged();
-  }
-
   //
   // --- delegate methods
   //
 
-//  @Override
-//  public void setBorder(Border border) {
-//    listScrollPane.setBorder(border);
-//  }
-//
-//  @Override
-//  public Border getBorder() {
-//    return listScrollPane.getBorder();
-//  }
+  public void fireContentsChanged() {
+    model.fireContentsChanged();
+  }
 
-//  @Override
-//  public void setBackground(Color bg) {
-//    list.setBackground(bg);
-//  }
-//
-//  @Override
-//  public Color getBackground() {
-//    return list.getBackground();
-//  }
+  @Override
+  public void setBorder(Border border) {
+    if (isInitializationDone) {
+      scrollPane.setBorder(border);
+    } else {
+      super.setBorder(border);
+    }
+  }
+
+  @Override
+  public Border getBorder() {
+    if (isInitializationDone) {
+      return scrollPane.getBorder();
+    } else {
+      return super.getBorder();
+    }
+  }
+
+  @Override
+  public void setBackground(Color bg) {
+    if (isInitializationDone) {
+      list.setBackground(bg);
+    } else {
+      super.setBackground(bg);
+    }
+  }
+
+  @Override
+  public Color getBackground() {
+    if (isInitializationDone) {
+      return list.getBackground();
+    } else {
+      return super.getBackground();
+    }
+  }
 
   public synchronized void addListSelectionListener(final ListSelectionListener listener) {
     list.addListSelectionListener(listener);
