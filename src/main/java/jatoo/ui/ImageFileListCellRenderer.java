@@ -38,7 +38,7 @@ import jatoo.image.ImageUtils;
  * The cell renderer for {@link ImageFileList} component.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.0-SNAPSHOT, June 15, 2017
+ * @version 2.0-SNAPSHOT, June 20, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileListCellRenderer extends JComponent implements ListCellRenderer<File> {
@@ -74,8 +74,8 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     // update icons
 
     // icon = createIcon(list.getResourcesImages().getImage("ImageFileList.Icon.png"));
-    iconLoading = createIcon(list.getResourcesImages().getImage("ImageFileList.IconLoading.png"));
-    iconError = createIcon(list.getResourcesImages().getImage("ImageFileList.IconError.png"));
+    iconLoading = createIcon(UITheme2.getImage("ImageFileList.IconLoading.png"));
+    iconError = createIcon(UITheme2.getImage("ImageFileList.IconError.png"));
 
     //
     // set dummy text and loading icon for the initial preferred size

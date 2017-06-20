@@ -41,19 +41,16 @@ import javax.swing.border.Border;
 import javax.swing.event.ListSelectionListener;
 
 import jatoo.image.ImageUtils;
-import jatoo.resources.ResourcesImages;
 import net.miginfocom.swing.MigLayout;
 
 /**
  * A component that displays a list of images from {@link File}s.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.0-SNAPSHOT, June 16, 2017
+ * @version 2.0-SNAPSHOT, June 20, 2017
  */
 @SuppressWarnings("serial")
 public class ImageFileList extends JPanel {
-
-  private ResourcesImages resourcesImages = new ResourcesImages(getClass());
 
   private final JList<File> list;
 
@@ -197,10 +194,6 @@ public class ImageFileList extends JPanel {
     //
 
     isInitializationDone = true;
-  }
-
-  public ResourcesImages getResourcesImages() {
-    return resourcesImages;
   }
 
   public void setIconSize(int iconSize) {
