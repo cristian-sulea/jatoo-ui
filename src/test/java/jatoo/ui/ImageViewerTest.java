@@ -37,29 +37,29 @@ public class ImageViewerTest {
 //    ImageCanvas imageCanvas = new ImageCanvas(image);
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
-    final ImageViewer imageCanvas = new ImageViewer(image);
+    final ImageViewer imageViewer = new ImageViewer(image);
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
     final JFrame frame = new JFrame(ImageViewerTest.class.getSimpleName());
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
     frame.getContentPane().setLayout(new GridLayout());
-    frame.getContentPane().add(imageCanvas);
+    frame.getContentPane().add(imageViewer);
 
-     frame.setSize(300, 200);
+     frame.setSize(800, 600);
 //    frame.pack();
     frame.setLocation(650, 700);
 
-    imageCanvas.setZoom(100);
+//    imageViewer.setZoom(100);
     frame.setVisible(true);
     
-    Thread.sleep(5000);
+    Thread.sleep(2000);
     
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         try {
-//          Thread.sleep(2000);
           System.out.println("zoom");
+//          imageViewer.xxx();
 //          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 //          SwingUtilities.updateComponentTreeUI(frame);
 //          frame.pack();
