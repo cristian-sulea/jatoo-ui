@@ -20,9 +20,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -34,6 +37,8 @@ import java.awt.event.MouseMotionAdapter;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
@@ -52,7 +57,7 @@ import org.apache.commons.logging.LogFactory;
  * A collection of utility methods to ease the work with UI components.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 3.0, May 20, 2014
+ * @version 4.0-SNAPSHOT, May 29, 2014
  */
 public class UIUtils {
 
@@ -285,22 +290,86 @@ public class UIUtils {
   }
 
   /**
-   * Sets the location of the window relative to the associated screen.
+   * Sets the location of the window relative to the associated screen. Gets the GraphicsConfiguration associated with
+   * this Component
    * 
    * @param window
    *          the window to be moved
    */
+
+  /**
+   * @deprecated Replaced by {@link #centerWindowOnScreen(Window)}.
+   */
   public static void setWindowLocationRelativeToScreen(Window window) {
+    centerWindowOnScreen(window);
+  }
 
-    GraphicsConfiguration gc = window.getGraphicsConfiguration();
-    Rectangle gcBounds = gc.getBounds();
+  /**
+   * Centers the window on the associated screen device.
+   * 
+   * @param window
+   *          the window to be centered
+   * @param screen
+   *          the index of the screen device where the window should be centered
+   */
+  public static void centerWindowOnScreen(Window window) {
+    centerWindowOnScreen(window, window.getGraphicsConfiguration());
+  }
 
-    Dimension windowSize = window.getSize();
+  /**
+   * Centers the window on a screen device (specified as an index).
+   * 
+   * @param window
+   *          the window to be centered
+   * @param screen
+   *          the index of the screen device where the window should be centered
+   */
+  public static void centerWindowOnScreen(Window window, int screen) {
+    centerWindowOnScreen(window, GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[screen].getDefaultConfiguration());
+  }
 
-    int dx = gcBounds.x + (gcBounds.width - windowSize.width) / 2;
-    int dy = gcBounds.y + (gcBounds.height - windowSize.height) / 2;
+  /**
+   * Centers the window on a screen device (specified as a {@link GraphicsConfiguration}).
+   * 
+   * @param window
+   *          the window to be centered
+   * @param gc
+   *          the {@link GraphicsConfiguration} of the screen device where the window should be centered
+   */
+  public static void centerWindowOnScreen(Window window, GraphicsConfiguration gc) {
 
-    window.setLocation(dx, dy);
+    Rectangle screenBounds = gc.getBounds();
+    Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+
+    int width = window.getWidth();
+    int height = window.getHeight();
+
+    int x = screenBounds.x + (screenBounds.width + screenInsets.left + screenInsets.right - width) / 2;
+    int y = screenBounds.y + (screenBounds.height + screenInsets.top + screenInsets.bottom - height) / 2;
+
+    window.setLocation(x, y);
+  }
+
+  public static void centerWindowOnScreen(Window window, int widthPercent, int heightPercent) {
+    centerWindowOnScreen(window, window.getGraphicsConfiguration(), widthPercent, heightPercent);
+  }
+
+  public static void centerWindowOnScreen(Window window, int screen, int widthPercent, int heightPercent) {
+    centerWindowOnScreen(window, GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[screen].getDefaultConfiguration(), widthPercent, heightPercent);
+  }
+
+  public static void centerWindowOnScreen(Window window, GraphicsConfiguration gc, int widthPercent, int heightPercent) {
+
+    Rectangle screenBounds = gc.getBounds();
+    Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+
+    int width = (int) (screenBounds.width * (widthPercent / 100d));
+    int height = (int) (screenBounds.height * (heightPercent / 100d));
+
+    int x = screenBounds.x + (screenBounds.width + screenInsets.left + screenInsets.right - width) / 2;
+    int y = screenBounds.y + (screenBounds.height + screenInsets.top + screenInsets.bottom - height) / 2;
+
+    window.setBounds(x, y, width, height);
   }
 
   /**
@@ -309,16 +378,14 @@ public class UIUtils {
    * @param window
    *          the window to be moved
    * @param component
-   *          the component in relation to which the window's location is
-   *          determined
+   *          the component in relation to which the window's location is determined
    */
   public static void setWindowLocationRelativeToComponent(Window window, Component component) {
     window.setLocationRelativeTo(component);
   }
 
   /**
-   * Adds to the provided text component a focus listener that will select all
-   * the text on focus gained.
+   * Adds to the provided text component a focus listener that will select all the text on focus gained.
    * 
    * @return the focus listener
    */
@@ -359,8 +426,7 @@ public class UIUtils {
   }
 
   /**
-   * Highlights the patterns found in the text of the provided
-   * {@link JTextComponent}.
+   * Highlights the patterns found in the text of the provided {@link JTextComponent}.
    * 
    * @param textComponent
    * @param pattern
@@ -435,6 +501,124 @@ public class UIUtils {
     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
       logger.error("failed to set the default cross platform look and feel", e);
     }
+  }
+
+  /**
+   * Disables the decorations for the specified frame.
+   */
+  public static void disableDecorations(JFrame frame) {
+
+    synchronized (frame) {
+
+      boolean frameIsVisible = frame.isVisible();
+      JRootPane frameRootPane = frame.getRootPane();
+
+      Point frameRootPaneLocation = null;
+      Dimension frameRootPaneSize = null;
+      if (frameIsVisible) {
+        frameRootPaneLocation = frameRootPane.getLocationOnScreen();
+        frameRootPaneSize = frameRootPane.getSize();
+      }
+
+      if (frame.isDisplayable()) {
+        frame.dispose();
+      }
+
+      frame.setUndecorated(true);
+      frame.setBackground(new Color(1f, 1f, 1f, 0f));
+
+      if (frameIsVisible) {
+
+        frame.setLocation(frameRootPaneLocation);
+        frame.setSize(frameRootPaneSize);
+
+        frame.setVisible(true);
+      }
+    }
+  }
+
+  /**
+   * Enables the decorations for the specified frame.
+   */
+  public static void enableDecorations(JFrame frame) {
+
+    synchronized (frame) {
+
+      boolean frameIsVisible = frame.isVisible();
+      JRootPane frameRootPane = frame.getRootPane();
+
+      Point frameRootPaneLocationBefore = null;
+      Dimension frameRootPaneSizeBefore = null;
+      if (frameIsVisible) {
+        frameRootPaneLocationBefore = frameRootPane.getLocationOnScreen();
+        frameRootPaneSizeBefore = frameRootPane.getSize();
+      }
+
+      if (frame.isDisplayable()) {
+        frame.dispose();
+      }
+
+      frame.setBackground(null);
+      frame.setUndecorated(false);
+
+      if (frameIsVisible) {
+
+        frame.setVisible(true);
+
+        Point frameRootPaneLocationAfter = frameRootPane.getLocationOnScreen();
+        Dimension frameRootPaneSizeAfter = frameRootPane.getSize();
+
+        Point frameLocation = frame.getLocationOnScreen();
+        Dimension frameSize = frame.getSize();
+
+        frame.setLocation(frameLocation.x - (frameRootPaneLocationAfter.x - frameRootPaneLocationBefore.x), frameLocation.y - (frameRootPaneLocationAfter.y - frameRootPaneLocationBefore.y));
+        frame.setSize(frameSize.width + (frameRootPaneSizeBefore.width - frameRootPaneSizeAfter.width), frameSize.height + (frameRootPaneSizeBefore.height - frameRootPaneSizeAfter.height));
+      }
+    }
+  }
+
+  public static int getSmallestScreenWidth() {
+
+    int smallestScreenWidth = Integer.MAX_VALUE;
+
+    for (GraphicsDevice graphicsDevice : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
+      smallestScreenWidth = Math.min(smallestScreenWidth, graphicsDevice.getDisplayMode().getWidth());
+    }
+
+    return smallestScreenWidth;
+  }
+
+  public static int getSmallestScreenHeight() {
+
+    int smallestScreenHeight = Integer.MAX_VALUE;
+
+    for (GraphicsDevice graphicsDevice : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
+      smallestScreenHeight = Math.min(smallestScreenHeight, graphicsDevice.getDisplayMode().getHeight());
+    }
+
+    return smallestScreenHeight;
+  }
+
+  public static int getBiggestScreenWidth() {
+
+    int biggestScreenWidth = Integer.MIN_VALUE;
+
+    for (GraphicsDevice graphicsDevice : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
+      biggestScreenWidth = Math.max(biggestScreenWidth, graphicsDevice.getDisplayMode().getWidth());
+    }
+
+    return biggestScreenWidth;
+  }
+
+  public static int getBiggestScreenHeight() {
+
+    int biggestScreenHeight = Integer.MIN_VALUE;
+
+    for (GraphicsDevice graphicsDevice : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
+      biggestScreenHeight = Math.max(biggestScreenHeight, graphicsDevice.getDisplayMode().getHeight());
+    }
+
+    return biggestScreenHeight;
   }
 
 }
