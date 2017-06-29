@@ -31,18 +31,10 @@ public class JaTooImager extends JFrame {
   public static void main(String[] args) throws Exception {
     // new JaTooImagerViewer(new File("src\\test\\resources\\image.jpg"));
     new JaTooImager(new File("d:\\OneDrive - PSS Prosoft Solutions\\Cristi - Personal\\Photos\\Share\\2013.10.21 - USA\\FB\\IMG_20131024_085105.jpg"));
-
-    // System.out.println(Toolkit.getDefaultToolkit().getScreenSize());
-
-    // System.out.println(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth());
-    // System.out.println(GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[1].getDisplayMode().getWidth());
-
-    // BufferedImage image = ImageUtils.read("d:\\IMG_1670.jpg");
-    // image = ImageUtils.resizeToFit(image, 1920);
-    // ImageUtils.writeJPEG(image, new File("d:\\IMG_1670_2.jpg"), 5);
   }
 
-  private ImageMemoryCache imageMemoryCache = new ImageMemoryCache();
+  private ImageMemoryCache imagesMemoryCache = new ImageMemoryCache();
+  private ImageMemoryCache iconsMemoryCache = new ImageMemoryCache();
 
   private ImageThumbnails thumbnails = new ImageThumbnails();
 
@@ -144,14 +136,17 @@ public class JaTooImager extends JFrame {
   private void showImage(final File file) {
 
     //
-    // start the image loader
-    // but only after the previous one is stopped
+    // first of all check the image in the memory cache
 
-    BufferedImage imageCached = imageMemoryCache.get(file);
+    BufferedImage imageCached = imagesMemoryCache.get(file);
     if (imageCached != null) {
       showImage(file, imageCached);
       return;
     }
+
+    //
+    // start a new image loader
+    // but only after the previous one is stopped
 
     canvas.showLoader();
 
@@ -163,6 +158,10 @@ public class JaTooImager extends JFrame {
 
       @Override
       protected void onLoaderStart(File file, boolean isForceStop) {
+
+        //
+        // get the thumbnail, but only if there is one already created
+        // will be created with the image already loaded
 
         BufferedImage thumbnail = thumbnails.get(file, 32, 32, false, true, ImageUtils.FORMAT.JPG);
 
@@ -176,21 +175,24 @@ public class JaTooImager extends JFrame {
       @Override
       protected void onImageLoaded(File file, BufferedImage image) {
 
+        //
+        // - show the image
+        // - update the cache
+        // - force the creation of the thumbnail
+
         showImage(file, image);
 
-        //
-        // update the cache
-
-        // imageCacheMemory.put(file, image);
-
-        //
-        //
-
+        imagesMemoryCache.put(file, image);
         thumbnails.get(file, image, 32, 32, true, true, ImageUtils.FORMAT.JPG);
       }
 
       @Override
       protected void onLoaderStop(File file, boolean isForceStop) {
+
+        //
+        // don't hide the loading indicator on a force stop
+        // it means that a new loading operation started
+
         if (!isForceStop) {
           canvas.hideLoader();
         }
@@ -207,7 +209,15 @@ public class JaTooImager extends JFrame {
     }
 
     else {
-      setIconImage(thumbnails.get(file, 32, 32, true, false, ImageUtils.FORMAT.JPG));
+
+      BufferedImage icon = iconsMemoryCache.get(file);
+
+      if (icon == null) {
+        icon = thumbnails.get(file, 32, 32, true, false, ImageUtils.FORMAT.JPG);
+        iconsMemoryCache.put(file, icon);
+      }
+
+      setIconImage(icon);
     }
   }
 
