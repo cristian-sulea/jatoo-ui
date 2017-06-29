@@ -35,13 +35,16 @@ import jatoo.image.ImageUtils;
  * </ul>
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.3, June 14, 2017
+ * @version 2.0, June 26, 2017
  */
 @SuppressWarnings("serial")
 public class ImageCanvas extends JComponent {
 
   /** The image that the canvas paints. */
   private BufferedImage image;
+
+  /** Interpolation hint value (how an image is scaled during a rendering operation). */
+  private Object interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 
   /**
    * Creates a canvas instance with no image.
@@ -78,9 +81,31 @@ public class ImageCanvas extends JComponent {
     return image;
   }
 
+  public void setInterpolationNearestNeighbor() {
+    interpolationHint = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+    repaint();
+  }
+
+  public void setInterpolationBilinear() {
+    interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+    repaint();
+  }
+
+  public void setInterpolationBicubic() {
+    interpolationHint = RenderingHints.VALUE_INTERPOLATION_BICUBIC;
+    repaint();
+  }
+
   @Override
   protected final void paintComponent(final Graphics graphics) {
     super.paintComponent(graphics);
+
+    //
+    // no image, no paint
+
+    if (image == null) {
+      return;
+    }
 
     //
     // create a new Graphics object to not alter the original
@@ -90,43 +115,12 @@ public class ImageCanvas extends JComponent {
     try {
 
       //
-      // no image, no paint
-
-      if (image == null) {
-        return;
-      }
-
-      //
       // here we go
 
-      final int canvasWidth = getWidth();
-      final int canvasHeight = getHeight();
+      int canvasWidth = getWidth();
+      int canvasHeight = getHeight();
 
-      //
-      // if image size is same as canvas size
-      // there is no need for resize operations
-
-      final int imageWidth = image.getWidth();
-      final int imageHeight = image.getHeight();
-
-      if (imageWidth == canvasWidth && imageHeight == canvasHeight) {
-        g.drawImage(image, 0, 0, null);
-      }
-
-      //
-      // different sizes means
-      // resize and center the painting image
-
-      else {
-
-        final Dimension paintingImageSize = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
-
-        final int x = (canvasWidth - paintingImageSize.width) / 2;
-        final int y = (canvasHeight - paintingImageSize.height) / 2;
-
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g.drawImage(image, x, y, paintingImageSize.width, paintingImageSize.height, null);
-      }
+      paintImage(g, image, canvasWidth, canvasHeight);
     }
 
     //
@@ -135,6 +129,21 @@ public class ImageCanvas extends JComponent {
     finally {
       g.dispose();
     }
+  }
+
+  protected void paintImage(final Graphics2D g, final BufferedImage image, final int canvasWidth, final int canvasHeight) {
+
+    Dimension imageDrawingSize = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
+
+    int imageDrawingX = (canvasWidth - imageDrawingSize.width) / 2;
+    int imageDrawingY = (canvasHeight - imageDrawingSize.height) / 2;
+
+    paintImage(g, image, imageDrawingX, imageDrawingY, imageDrawingSize.width, imageDrawingSize.height);
+  }
+
+  protected void paintImage(final Graphics2D g, final BufferedImage image, final int x, final int y, final int width, final int height) {
+    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, interpolationHint);
+    g.drawImage(image, x, y, width, height, null);
   }
 
 }
