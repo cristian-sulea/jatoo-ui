@@ -577,6 +577,30 @@ public class UIUtils {
     }
   }
 
+  public static int getScreenWidth() {
+    return getScreenSize().width;
+  }
+
+  public static int getScreenHeight() {
+    return getScreenSize().height;
+  }
+
+  public static Dimension getScreenSize() {
+    return Toolkit.getDefaultToolkit().getScreenSize();
+  }
+
+  public static int getScreenWidth(Window window) {
+    return window.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds().width;
+  }
+
+  public static int getScreenHeight(final Window window) {
+    return window.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds().width;
+  }
+
+  public static Dimension getScreenSize(final Window window) {
+    return window.getGraphicsConfiguration().getDevice().getDefaultConfiguration().getBounds().getSize();
+  }
+
   public static int getSmallestScreenWidth() {
 
     int smallestScreenWidth = Integer.MAX_VALUE;

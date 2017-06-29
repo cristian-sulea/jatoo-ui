@@ -110,8 +110,8 @@ public class JaTooImager extends JFrame {
 
           // bounds.x += 15;
           // bounds.y += 15;
-          bounds.width -= 30;
-          bounds.height -= 30;
+          bounds.width -= (UIUtils.getScreenWidth() * 0.01f);
+          bounds.height -= (UIUtils.getScreenHeight() * 0.01f);
         }
 
         else {
@@ -121,14 +121,13 @@ public class JaTooImager extends JFrame {
 
           // bounds.x -= 15;
           // bounds.y -= 15;
-          bounds.width += 30;
-          bounds.height += 30;
-
+          bounds.width += (UIUtils.getScreenWidth() * 0.01f);
+          bounds.height += (UIUtils.getScreenHeight() * 0.01f);
         }
 
         // setLocation(bounds.x, bounds.y);
-        // setSize(bounds.width, bounds.height);
-        setBounds(bounds);
+        setSize(bounds.width, bounds.height);
+        // setBounds(bounds);
       }
     });
   }
