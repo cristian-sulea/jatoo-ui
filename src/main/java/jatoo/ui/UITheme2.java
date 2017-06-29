@@ -17,6 +17,8 @@
 package jatoo.ui;
 
 import java.awt.Image;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 
@@ -34,40 +36,53 @@ public class UITheme2 {
   private static final ResourcesTexts DEFAULT_TEXTS = new ResourcesTexts(UITheme2.class);
   private static final ResourcesImages DEFAULT_IMAGES = new ResourcesImages(UITheme2.class);
 
-  private static ResourcesTexts texts = DEFAULT_TEXTS;
-  private static ResourcesImages images = DEFAULT_IMAGES;
-
-  public final static synchronized void setTheme(Class<?> clazz) {
-    texts = new ResourcesTexts(clazz, DEFAULT_TEXTS);
-    images = new ResourcesImages(clazz, DEFAULT_IMAGES);
-  }
+  private static final Map<Class<?>, ResourcesTexts> CACHE_TEXTS = new HashMap<>();
+  private static final Map<Class<?>, ResourcesImages> CACHE_IMAGES = new HashMap<>();
 
   /**
    * {@link ResourcesTexts#getText(String)}
    */
-  public final static synchronized String getText(String key) {
-    return texts.getText(key);
+  public final static synchronized String getText(Class<?> clazz, String key) {
+    return getResourcesTexts(clazz).getText(key);
   }
 
   /**
    * {@link ResourcesTexts#getText(String, Object...)}
    */
-  public final static synchronized String getText(String key, Object... arguments) {
-    return texts.getText(key, arguments);
+  public final static synchronized String getText(Class<?> clazz, String key, Object... arguments) {
+    return getResourcesTexts(clazz).getText(key, arguments);
   }
 
   /**
    * {@link ResourcesImages#getImage(String)}
    */
-  public final static synchronized Image getImage(String name) {
-    return images.getImage(name);
+  public final static synchronized Image getImage(Class<?> clazz, String name) {
+    return getResourcesImages(clazz).getImage(name);
   }
 
   /**
    * {@link ResourcesImages#getImageIcon(String)}
    */
-  public final static synchronized ImageIcon getImageIcon(String name) {
-    return images.getImageIcon(name);
+  public final static synchronized ImageIcon getImageIcon(Class<?> clazz, String name) {
+    return getResourcesImages(clazz).getImageIcon(name);
+  }
+
+  private static ResourcesTexts getResourcesTexts(Class<?> clazz) {
+    ResourcesTexts texts = CACHE_TEXTS.get(clazz);
+    if (texts == null) {
+      texts = new ResourcesTexts(clazz, DEFAULT_TEXTS);
+      CACHE_TEXTS.put(clazz, texts);
+    }
+    return texts;
+  }
+
+  private static ResourcesImages getResourcesImages(Class<?> clazz) {
+    ResourcesImages images = CACHE_IMAGES.get(clazz);
+    if (images == null) {
+      images = new ResourcesImages(clazz, DEFAULT_IMAGES);
+      CACHE_IMAGES.put(clazz, images);
+    }
+    return images;
   }
 
 }
