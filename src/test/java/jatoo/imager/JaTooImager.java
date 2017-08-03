@@ -154,8 +154,15 @@ public class JaTooImager extends JFrame {
     // first of all check the image in the memory cache
 
     BufferedImage imageCached = imagesMemoryCache.get(file);
+
     if (imageCached != null) {
-      showImage(file, imageCached);
+
+      if (imageLoader != null) {
+        imageLoader.forceStop();
+      }
+
+      showImage(file, imageCached, true);
+
       return;
     }
 
@@ -181,9 +188,9 @@ public class JaTooImager extends JFrame {
         BufferedImage thumbnail = thumbnails.get(file, 32, 32, false, true, ImageUtils.FORMAT.JPG);
 
         if (thumbnail != null) {
-          showImage(file, thumbnail);
+          showImage(file, thumbnail, false);
         } else {
-          showImage(file, null);
+          showImage(file, null, false);
         }
       }
 
@@ -195,7 +202,7 @@ public class JaTooImager extends JFrame {
         // - update the cache
         // - force the creation of the thumbnail
 
-        showImage(file, image);
+        showImage(file, image, false);
 
         imagesMemoryCache.put(file, image);
         thumbnails.get(file, image, 32, 32, true, true, ImageUtils.FORMAT.JPG);
@@ -215,7 +222,7 @@ public class JaTooImager extends JFrame {
     };
   }
 
-  private void showImage(final File file, final BufferedImage image) {
+  private void showImage(final File file, final BufferedImage image, final boolean hideLoader) {
 
     canvas.setImage(image);
 
@@ -233,6 +240,10 @@ public class JaTooImager extends JFrame {
       }
 
       setIconImage(icon);
+    }
+
+    if (hideLoader) {
+      canvas.hideLoader();
     }
   }
 
