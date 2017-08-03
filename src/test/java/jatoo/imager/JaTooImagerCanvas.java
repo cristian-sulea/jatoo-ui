@@ -40,6 +40,8 @@ public class JaTooImagerCanvas extends ImageCanvas {
 
   public JaTooImagerCanvas() {
 
+    setLayout(new JaTooImagerCanvasLayout());
+
     float loaderImageFontSize = UIUtils.getSmallestScreenHeight() / 90f;
     BufferedImage loaderImage = ImageUtils.create(UITheme2.getText(getClass(), "loader.text"), new JLabel().getFont().deriveFont(loaderImageFontSize), Color.WHITE);
     BufferedImage loaderImageWithShadow = ImageUtils.addShadow(loaderImage, 30, 1, 1, 1f, Color.BLACK);
@@ -50,33 +52,6 @@ public class JaTooImagerCanvas extends ImageCanvas {
     hideLoader();
 
     add(loader);
-    setLayout(new LayoutManager() {
-
-      @Override
-      public void layoutContainer(final Container container) {
-        synchronized (container.getTreeLock()) {
-          loader.setLocation((container.getWidth() - loader.getWidth()) / 2, (container.getHeight() - loader.getHeight()) / 2);
-        }
-      }
-
-      @Override
-      public Dimension preferredLayoutSize(final Container container) {
-        synchronized (container.getTreeLock()) {
-          return new Dimension(getPreferredSize());
-        }
-      }
-
-      @Override
-      public Dimension minimumLayoutSize(final Container container) {
-        synchronized (container.getTreeLock()) {
-          return new Dimension(getMinimumSize());
-        }
-      }
-
-      public void addLayoutComponent(final String name, final Component comp) {}
-
-      public void removeLayoutComponent(final Component comp) {}
-    });
   }
 
   // @Override
@@ -107,6 +82,34 @@ public class JaTooImagerCanvas extends ImageCanvas {
 
   public void hideLoader() {
     loader.setVisible(false);
+  }
+
+  private class JaTooImagerCanvasLayout implements LayoutManager {
+
+    @Override
+    public void layoutContainer(final Container container) {
+      synchronized (container.getTreeLock()) {
+        loader.setLocation((container.getWidth() - loader.getWidth()) / 2, (container.getHeight() - loader.getHeight()) / 2);
+      }
+    }
+
+    @Override
+    public Dimension preferredLayoutSize(final Container container) {
+      synchronized (container.getTreeLock()) {
+        return new Dimension(getPreferredSize());
+      }
+    }
+
+    @Override
+    public Dimension minimumLayoutSize(final Container container) {
+      synchronized (container.getTreeLock()) {
+        return new Dimension(getMinimumSize());
+      }
+    }
+
+    public void addLayoutComponent(final String name, final Component comp) {}
+
+    public void removeLayoutComponent(final Component comp) {}
   }
 
 }
