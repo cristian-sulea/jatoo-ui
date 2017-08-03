@@ -16,7 +16,6 @@
 
 package jatoo.imager;
 
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
@@ -39,6 +38,9 @@ import jatoo.ui.UIUtils;
 @SuppressWarnings("serial")
 public class JaTooImager extends JFrame {
 
+  private static final int RESIZE_MOUSE_WHEEL_WIDTH_RATIO = (int) (UIUtils.getScreenWidth() * 0.01f);
+  private static final int RESIZE_MOUSE_WHEEL_HEIGHT_RATIO = (int) (UIUtils.getScreenHeight() * 0.01f);
+
   static {
     UIUtils.setSystemLookAndFeel();
     // UITheme2.setTheme(JaTooImager.class);
@@ -54,14 +56,17 @@ public class JaTooImager extends JFrame {
 
   private ImageThumbnails thumbnails = new ImageThumbnails();
 
-  private JaTooImagerCanvas canvas = new JaTooImagerCanvas();
-
   private List<File> files;
   private int filesIndex;
+
+  private JaTooImagerCanvas canvas;
 
   private ImageLoader imageLoader;
 
   public JaTooImager(File file) throws Exception {
+
+    //
+    // files
 
     files = new ArrayList<>(Arrays.asList(file.getParentFile().listFiles(new FileFilter() {
       public boolean accept(File file) {
@@ -70,10 +75,15 @@ public class JaTooImager extends JFrame {
     })));
     filesIndex = files.indexOf(file);
 
-    setContentPane(canvas);
+    //
+    // canvas
+
+    canvas = new JaTooImagerCanvas();
+
+    canvas.addMouseWheelListener(new ResizeMouseWheelListener());
 
     UIUtils.forwardDragAsMove(canvas, this);
-    // UIUtils.disableDecorations(JaTooImager.this);
+    UIUtils.disableDecorations(JaTooImager.this);
 
     UIUtils.setActionForEscapeKeyStroke(canvas, new AbstractAction() {
       public void actionPerformed(ActionEvent e) {
@@ -109,43 +119,20 @@ public class JaTooImager extends JFrame {
       }
     });
 
+    setContentPane(canvas);
+
+    //
+    // frame
+
     setTitle(file.getName());
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     UIUtils.centerWindowOnScreen(this, 0, 25, 25);
     setVisible(true);
 
-    canvas.addMouseWheelListener(new MouseWheelListener() {
-      public void mouseWheelMoved(MouseWheelEvent e) {
+    //
+    // show the image
 
-        Rectangle bounds = getBounds();
-
-        if (e.getPreciseWheelRotation() > 0) {
-
-          // setLocation(bounds.x - 5, bounds.y - 5);
-          // setSize(bounds.width + 10, bounds.height + 10);
-
-          // bounds.x += 15;
-          // bounds.y += 15;
-          bounds.width -= (UIUtils.getScreenWidth() * 0.01f);
-          bounds.height -= (UIUtils.getScreenHeight() * 0.01f);
-        }
-
-        else {
-
-          // setLocation(bounds.x - 5, bounds.y - 5);
-          // setSize(bounds.width + 10, bounds.height + 10);
-
-          // bounds.x -= 15;
-          // bounds.y -= 15;
-          bounds.width += (UIUtils.getScreenWidth() * 0.01f);
-          bounds.height += (UIUtils.getScreenHeight() * 0.01f);
-        }
-
-        // setLocation(bounds.x, bounds.y);
-        setSize(bounds.width, bounds.height);
-        // setBounds(bounds);
-      }
-    });
+    showImage(file);
   }
 
   private void showImage(final File file) {
@@ -244,6 +231,27 @@ public class JaTooImager extends JFrame {
 
     if (hideLoader) {
       canvas.hideLoader();
+    }
+  }
+
+  private class ResizeMouseWheelListener implements MouseWheelListener {
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+
+      final int widthRatio, heightRatio;
+
+      if (e.getPreciseWheelRotation() > 0) {
+        widthRatio = -RESIZE_MOUSE_WHEEL_WIDTH_RATIO;
+        heightRatio = -RESIZE_MOUSE_WHEEL_HEIGHT_RATIO;
+      }
+
+      else {
+        widthRatio = +RESIZE_MOUSE_WHEEL_WIDTH_RATIO;
+        heightRatio = +RESIZE_MOUSE_WHEEL_HEIGHT_RATIO;
+      }
+
+      setSize(getWidth() + widthRatio, getHeight() + heightRatio);
     }
   }
 
