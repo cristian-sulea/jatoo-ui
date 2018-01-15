@@ -26,9 +26,12 @@ import org.apache.commons.logging.LogFactory;
 
 import jatoo.image.ImageUtils;
 
-public abstract class ImageLoaderV2 implements Runnable {
+public class ImageLoaderV2 implements Runnable {
 
   private final Log logger = LogFactory.getLog(getClass());
+
+  private final ImageLoaderV2Listener listener;
+  private final Thread thread;
 
   private File file;
   private FileInputStream stream;
@@ -36,13 +39,20 @@ public abstract class ImageLoaderV2 implements Runnable {
   private boolean started;
   private boolean stopped;
 
-  private boolean firstRun = true;
-
-  public ImageLoaderV2() {
-    new Thread(this).start();
+  public ImageLoaderV2(final ImageLoaderV2Listener listener) {
+    this.listener = listener;
+    this.thread = new Thread(this);
   }
 
   public void startLoading(File file) {
+
+    if (!thread.isAlive()) {
+      synchronized (thread) {
+        if (!thread.isAlive()) {
+          thread.start();
+        }
+      }
+    }
 
     stopLoading();
 
@@ -76,18 +86,7 @@ public abstract class ImageLoaderV2 implements Runnable {
 
     while (true) {
 
-      if (firstRun) {
-        firstRun = false;
-        synchronized (this) {
-          try {
-            this.wait();
-          } catch (InterruptedException e) {
-            logger.error("thread can't wait ???...", e);
-          }
-        }
-      }
-
-      onStartLoading(file);
+      listener.onStartLoading(file);
 
       this.started = false;
       this.stopped = false;
@@ -95,8 +94,11 @@ public abstract class ImageLoaderV2 implements Runnable {
       BufferedImage image;
 
       try {
+
         stream = new FileInputStream(file);
         image = ImageUtils.read(stream);
+
+        listener.onImageLoaded(file, image);
       }
 
       catch (IOException e) {
@@ -104,19 +106,20 @@ public abstract class ImageLoaderV2 implements Runnable {
         image = null;
 
         if (!stopped) {
+          listener.onImageError(file, e);
           logger.warn("image could not be read from file: " + file, e);
         }
       }
 
       finally {
-        try {
-          stream.close();
-        } catch (IOException e) {
-          logger.warn("stream could not be closed: " + file, e);
+        if (stream != null) {
+          try {
+            stream.close();
+          } catch (IOException e) {
+            logger.warn("stream could not be closed: " + file, e);
+          }
         }
       }
-
-      onImageLoaded(file, image);
 
       synchronized (this) {
 
@@ -132,9 +135,4 @@ public abstract class ImageLoaderV2 implements Runnable {
       }
     }
   }
-
-  protected abstract void onStartLoading(File file);
-
-  protected abstract void onImageLoaded(File file, BufferedImage image);
-
 }
