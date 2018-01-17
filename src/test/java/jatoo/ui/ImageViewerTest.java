@@ -37,7 +37,7 @@ public class ImageViewerTest {
 //    ImageCanvas imageCanvas = new ImageCanvas(image);
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
-    final ImageViewer imageViewer = new ImageViewer(image);
+    final ImageViewerV3 imageViewer = new ImageViewerV3(image);
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
     final JFrame frame = new JFrame(ImageViewerTest.class.getSimpleName());
@@ -63,7 +63,7 @@ public class ImageViewerTest {
 //          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 //          SwingUtilities.updateComponentTreeUI(frame);
 //          frame.pack();
-//          imageCanvas.setZoom(100);
+//          imageViewer.setZoom(0);
 //          frame.invalidate();
 //          frame.validate();
 //          frame.revalidate();
