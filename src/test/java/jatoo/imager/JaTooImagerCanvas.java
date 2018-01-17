@@ -30,7 +30,7 @@ import javax.swing.JLabel;
 
 import jatoo.image.ImageUtils;
 import jatoo.ui.ImageCanvas;
-import jatoo.ui.UITheme2;
+import jatoo.ui.UIResources;
 import jatoo.ui.UIUtils;
 
 @SuppressWarnings("serial")
@@ -43,7 +43,7 @@ public class JaTooImagerCanvas extends ImageCanvas {
     setLayout(new JaTooImagerCanvasLayout());
 
     float loaderImageFontSize = UIUtils.getSmallestScreenHeight() / 90f;
-    BufferedImage loaderImage = ImageUtils.create(UITheme2.getText(getClass(), "loader.text"), new JLabel().getFont().deriveFont(loaderImageFontSize), Color.WHITE);
+    BufferedImage loaderImage = ImageUtils.create(UIResources.getText("loader.text"), new JLabel().getFont().deriveFont(loaderImageFontSize), Color.WHITE);
     BufferedImage loaderImageWithShadow = ImageUtils.addShadow(loaderImage, 30, 1, 1, 1f, Color.BLACK);
 
     loader = new JLabel(new ImageIcon(loaderImageWithShadow));

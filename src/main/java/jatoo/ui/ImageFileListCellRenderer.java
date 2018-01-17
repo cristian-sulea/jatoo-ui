@@ -74,8 +74,8 @@ public class ImageFileListCellRenderer extends JComponent implements ListCellRen
     // update icons
 
     // icon = createIcon(list.getResourcesImages().getImage("ImageFileList.Icon.png"));
-    iconLoading = createIcon(UITheme2.getImage(getClass(), "ImageFileList.IconLoading.png"));
-    iconError = createIcon(UITheme2.getImage(getClass(), "ImageFileList.IconError.png"));
+    iconLoading = createIcon(UIResources.getImage("ImageFileList.IconLoading.png"));
+    iconError = createIcon(UIResources.getImage("ImageFileList.IconError.png"));
 
     //
     // set dummy text and loading icon for the initial preferred size

@@ -29,58 +29,72 @@ import jatoo.resources.ResourcesTexts;
  * This class provides the resources for the UI components.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.0-SNAPSHOT, June 20, 2017
+ * @version 1.1, January 17, 2018
  */
-public class UITheme2 {
+public class UIResources {
 
-  private static final ResourcesTexts DEFAULT_TEXTS = new ResourcesTexts(UITheme2.class);
-  private static final ResourcesImages DEFAULT_IMAGES = new ResourcesImages(UITheme2.class);
+  private static final ResourcesTexts DEFAULT_TEXTS = new ResourcesTexts(UIResources.class);
+  private static final ResourcesImages DEFAULT_IMAGES = new ResourcesImages(UIResources.class);
 
-  private static final Map<Class<?>, ResourcesTexts> CACHE_TEXTS = new HashMap<>();
-  private static final Map<Class<?>, ResourcesImages> CACHE_IMAGES = new HashMap<>();
+  private static final Map<Class<?>, ResourcesTexts> CACHED_TEXTS = new HashMap<>();
+  private static final Map<Class<?>, ResourcesImages> CACHED_IMAGES = new HashMap<>();
+
+  private static Class<?> RESOURCES_BASE_CLASS = UIResources.class;
+
+  public final static synchronized void setResourcesBaseClass(final Class<?> resourcesBaseClass) {
+
+    RESOURCES_BASE_CLASS = resourcesBaseClass;
+
+    CACHED_TEXTS.clear();
+    CACHED_IMAGES.clear();
+  }
 
   /**
    * {@link ResourcesTexts#getText(String)}
    */
-  public final static synchronized String getText(Class<?> clazz, String key) {
-    return getResourcesTexts(clazz).getText(key);
+  public final static synchronized String getText(String key) {
+    return getResourcesTexts(RESOURCES_BASE_CLASS).getText(key);
   }
 
   /**
    * {@link ResourcesTexts#getText(String, Object...)}
    */
-  public final static synchronized String getText(Class<?> clazz, String key, Object... arguments) {
-    return getResourcesTexts(clazz).getText(key, arguments);
+  public final static synchronized String getText(String key, Object... arguments) {
+    return getResourcesTexts(RESOURCES_BASE_CLASS).getText(key, arguments);
   }
 
   /**
    * {@link ResourcesImages#getImage(String)}
    */
-  public final static synchronized Image getImage(Class<?> clazz, String name) {
-    return getResourcesImages(clazz).getImage(name);
+  public final static synchronized Image getImage(String name) {
+    return getResourcesImages(RESOURCES_BASE_CLASS).getImage(name);
   }
 
   /**
    * {@link ResourcesImages#getImageIcon(String)}
    */
-  public final static synchronized ImageIcon getImageIcon(Class<?> clazz, String name) {
-    return getResourcesImages(clazz).getImageIcon(name);
+  public final static synchronized ImageIcon getImageIcon(String name) {
+    return getResourcesImages(RESOURCES_BASE_CLASS).getImageIcon(name);
   }
 
+  //
+  // ---
+  //
+
   private static ResourcesTexts getResourcesTexts(Class<?> clazz) {
-    ResourcesTexts texts = CACHE_TEXTS.get(clazz);
+    ResourcesTexts texts = CACHED_TEXTS.get(clazz);
     if (texts == null) {
       texts = new ResourcesTexts(clazz, DEFAULT_TEXTS);
-      CACHE_TEXTS.put(clazz, texts);
+      CACHED_TEXTS.put(clazz, texts);
     }
     return texts;
   }
 
   private static ResourcesImages getResourcesImages(Class<?> clazz) {
-    ResourcesImages images = CACHE_IMAGES.get(clazz);
+    ResourcesImages images = CACHED_IMAGES.get(clazz);
     if (images == null) {
       images = new ResourcesImages(clazz, DEFAULT_IMAGES);
-      CACHE_IMAGES.put(clazz, images);
+      CACHED_IMAGES.put(clazz, images);
     }
     return images;
   }
