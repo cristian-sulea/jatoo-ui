@@ -27,7 +27,9 @@ import javax.swing.JComponent;
 import jatoo.image.ImageUtils;
 
 /**
- * A "canvas" component where images can be painted, one at a time. Some rules are applied to the painted image:
+ * A "canvas" component where images can be painted, one at a time.
+ * 
+ * Some rules are applied to the painted image:
  * <ul>
  * <li>the image will be resized to fit the max size of the canvas</li>
  * <li>the ratio will be preserved</li>
