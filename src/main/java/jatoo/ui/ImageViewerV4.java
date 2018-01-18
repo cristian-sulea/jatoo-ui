@@ -36,10 +36,10 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 3.5, July 31, 2014
+ * @version 4.0, January 18, 2018
  */
 @SuppressWarnings("serial")
-public class ImageViewerV3 extends JScrollPane {
+public class ImageViewerV4 extends JScrollPane {
 
   /** The logger. */
   private final Log logger = LogFactory.getLog(getClass());
@@ -51,13 +51,13 @@ public class ImageViewerV3 extends JScrollPane {
   private static final int ZOOM_REAL_SIZE = 100;
 
   /** The canvas used by this image viewer to display the images. */
-  private final ImageCanvas canvas;
+  private final ImageCanvas canvas = new ImageCanvas();
 
   /** Image zoom with mouse wheel. */
-  private final WheelZoomListener imageCanvasScrollPaneWheelZoomListener = new WheelZoomListener();
+  private final WheelZoomListener wheelZoomListener = new WheelZoomListener();
 
   /** Image drag to scroll. */
-  private final DragToScrollListener imageCanvasScrollPaneDragToScrollListener = new DragToScrollListener();
+  private final DragToScrollListener dragToScrollListener = new DragToScrollListener();
 
   /**
    * The zoom percentage for the image to be displayed.
@@ -77,19 +77,22 @@ public class ImageViewerV3 extends JScrollPane {
   /**
    * Creates a viewer instance with no image.
    */
-  public ImageViewerV3() {
-
-    canvas = new ImageCanvas();
-    canvas.setCursor(UITheme.getCursorDefault());
+  public ImageViewerV4() {
 
     setViewportView(canvas);
+
     setBorder(BorderFactory.createEmptyBorder());
     setViewportBorder(BorderFactory.createEmptyBorder());
 
-    getViewport().addMouseWheelListener(imageCanvasScrollPaneWheelZoomListener);
+    getViewport().addMouseWheelListener(wheelZoomListener);
 
-    getViewport().addMouseMotionListener(imageCanvasScrollPaneDragToScrollListener);
-    getViewport().addMouseListener(imageCanvasScrollPaneDragToScrollListener);
+    getViewport().addMouseMotionListener(dragToScrollListener);
+    getViewport().addMouseListener(dragToScrollListener);
+
+    //
+    // don't forget about the cursor
+
+    updateCursor(false);
   }
 
   /**
@@ -98,7 +101,7 @@ public class ImageViewerV3 extends JScrollPane {
    * @param image
    *          the {@link BufferedImage} to be displayed
    */
-  public ImageViewerV3(final BufferedImage image) {
+  public ImageViewerV4(final BufferedImage image) {
     this();
     setImage(image);
   }
@@ -230,7 +233,7 @@ public class ImageViewerV3 extends JScrollPane {
     canvas.scrollRectToVisible(zoomedCanvasVisibleRect);
 
     //
-    // TODO: Do i really need to update the cursor at this point?
+    // don't forget about the cursor
 
     updateCursor(false);
   }
@@ -255,10 +258,6 @@ public class ImageViewerV3 extends JScrollPane {
     zoom(zoom - zoomStep);
   }
 
-  public final void zoomOut() {
-    zoomOut(zoomStep);
-  }
-
   /**
    * Zooms in with the specified (percentage) value. For example if the current zoom is 60%, a zoom in with 20 as step
    * will result in a 80% final zoom.
@@ -270,8 +269,22 @@ public class ImageViewerV3 extends JScrollPane {
     zoom(zoom + zoomStep);
   }
 
+  public final void zoomOut() {
+    zoomOut(getAutoZoomStep());
+  }
+
   public final void zoomIn() {
-    zoomIn(zoomStep);
+    zoomIn(getAutoZoomStep());
+  }
+
+  private int getAutoZoomStep() {
+    if (zoom >= ZOOM_REAL_SIZE * 2) {
+      return zoomStep * 5;
+    } else if (zoom >= ZOOM_REAL_SIZE) {
+      return zoomStep * 2;
+    } else {
+      return zoomStep;
+    }
   }
 
   /**
@@ -384,28 +397,17 @@ public class ImageViewerV3 extends JScrollPane {
    */
   private void updateCursor(final boolean isDragging) {
 
-    final Dimension imageCanvasContainerSize = canvas.getSize();
-    final Dimension imageCanvasScrollPaneViewportVisibleSize = getViewport().getExtentSize();
+    if (isBestFit()) {
+      canvas.setCursor(UITheme.getCursorDefault());
+    }
 
-    final boolean isDifferentWidth = imageCanvasContainerSize.width > imageCanvasScrollPaneViewportVisibleSize.width;
-    final boolean isDifferentHeight = imageCanvasContainerSize.height > imageCanvasScrollPaneViewportVisibleSize.height;
-
-    //
-    // the old condition was:
-    // imageCanvasScrollPane.getVerticalScrollBar().isVisible() ||
-    // imageCanvasScrollPane.getHorizontalScrollBar().isVisible()
-
-    if (isDifferentWidth || isDifferentHeight) {
+    else {
 
       if (isDragging) {
         canvas.setCursor(UITheme.getCursorDragging());
       } else {
         canvas.setCursor(UITheme.getCursorDrag());
       }
-    }
-
-    else {
-      canvas.setCursor(UITheme.getCursorDefault());
     }
   }
 }
