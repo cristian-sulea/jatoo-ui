@@ -75,7 +75,7 @@ public class ImageViewerV4 extends JScrollPane {
   private int zoom = ZOOM_BEST_FIT;
 
   /** The zoom step value zoom in/out. */
-  private int zoomStep = 10;
+  private int zoomStep = 25;
 
   /**
    * Creates a viewer instance with no image.
@@ -298,7 +298,7 @@ public class ImageViewerV4 extends JScrollPane {
 
   private int getAutoZoomStep() {
     if (zoom >= ZOOM_REAL_SIZE * 2) {
-      return zoomStep * 5;
+      return zoomStep * 4;
     } else if (zoom >= ZOOM_REAL_SIZE) {
       return zoomStep * 2;
     } else {
