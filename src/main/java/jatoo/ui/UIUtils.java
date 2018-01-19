@@ -57,7 +57,7 @@ import org.apache.commons.logging.LogFactory;
  * A collection of utility methods to ease the work with UI components.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 4.0-SNAPSHOT, May 29, 2014
+ * @version 4.1, January 19, 2018
  */
 public class UIUtils {
 
@@ -382,6 +382,21 @@ public class UIUtils {
    */
   public static void setWindowLocationRelativeToComponent(Window window, Component component) {
     window.setLocationRelativeTo(component);
+  }
+
+  public static boolean isVisibleOnTheScreen(Rectangle rectangle) {
+
+    Rectangle bounds = new Rectangle(0, 0, 0, 0);
+
+    for (GraphicsDevice gd : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()) {
+      bounds.add(gd.getDefaultConfiguration().getBounds());
+    }
+
+    return bounds.contains(rectangle.getBounds());
+  }
+
+  public static boolean isVisibleOnTheScreen(Component component) {
+    return isVisibleOnTheScreen(component.getBounds());
   }
 
   /**
