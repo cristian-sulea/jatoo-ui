@@ -18,6 +18,7 @@ package jatoo.ui;
 
 import jatoo.image.ImageUtils;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -37,6 +38,7 @@ public class ImageViewerTest {
 //    ImageCanvas imageCanvas = new ImageCanvas(image);
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
+//    image = ImageUtils.create("Loading...", null, Color.DARK_GRAY, Color.LIGHT_GRAY, true);
     final ImageViewerV4 imageViewer = new ImageViewerV4(image);
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
@@ -58,7 +60,7 @@ public class ImageViewerTest {
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         try {
-          System.out.println("zoom");
+//          System.out.println("zoom");
 //          imageViewer.xxx();
 //          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 //          SwingUtilities.updateComponentTreeUI(frame);
