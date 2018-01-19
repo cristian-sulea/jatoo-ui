@@ -37,7 +37,7 @@ import jatoo.image.ImageUtils;
  * </ul>
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.0, June 26, 2017
+ * @version 3.0, January 19, 2018
  */
 @SuppressWarnings("serial")
 public class ImageCanvas extends JComponent {
@@ -47,6 +47,9 @@ public class ImageCanvas extends JComponent {
 
   /** Interpolation hint value (how an image is scaled during a rendering operation). */
   private Object interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+
+  /** If <code>false</code> (default value), when image is smaller the canvas will not be filled with the image. */
+  private boolean fillCanvasWithSmallerImage = false;
 
   /**
    * Creates a canvas instance with no image.
@@ -83,19 +86,45 @@ public class ImageCanvas extends JComponent {
     return image;
   }
 
+  /**
+   * @see #interpolationHint
+   * @see RenderingHints#VALUE_INTERPOLATION_NEAREST_NEIGHBOR
+   */
   public void setInterpolationNearestNeighbor() {
     interpolationHint = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
     repaint();
   }
 
+  /**
+   * @see #interpolationHint
+   * @see RenderingHints#VALUE_INTERPOLATION_BILINEAR
+   */
   public void setInterpolationBilinear() {
     interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
     repaint();
   }
 
+  /**
+   * @see #interpolationHint
+   * @see RenderingHints#VALUE_INTERPOLATION_BICUBIC
+   */
   public void setInterpolationBicubic() {
     interpolationHint = RenderingHints.VALUE_INTERPOLATION_BICUBIC;
     repaint();
+  }
+
+  /**
+   * @see #fillCanvasWithSmallerImage
+   */
+  public void setFillCanvasWithSmallerImage(boolean fill) {
+    this.fillCanvasWithSmallerImage = fill;
+  }
+
+  /**
+   * @see #fillCanvasWithSmallerImage
+   */
+  public boolean isFillCanvasWithSmallerImage() {
+    return fillCanvasWithSmallerImage;
   }
 
   @Override
@@ -135,12 +164,26 @@ public class ImageCanvas extends JComponent {
 
   protected void paintImage(final Graphics2D g, final BufferedImage image, final int canvasWidth, final int canvasHeight) {
 
-    Dimension imageDrawingSize = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
+    int drawingWidth;
+    int drawingHeight;
 
-    int imageDrawingX = (canvasWidth - imageDrawingSize.width) / 2;
-    int imageDrawingY = (canvasHeight - imageDrawingSize.height) / 2;
+    if (!fillCanvasWithSmallerImage && (image.getWidth() < canvasWidth && image.getHeight() < canvasHeight)) {
+      drawingWidth = image.getWidth();
+      drawingHeight = image.getHeight();
+    }
 
-    paintImage(g, image, imageDrawingX, imageDrawingY, imageDrawingSize.width, imageDrawingSize.height);
+    else {
+
+      Dimension drawingSize = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
+
+      drawingWidth = drawingSize.width;
+      drawingHeight = drawingSize.height;
+    }
+
+    int drawingX = (canvasWidth - drawingWidth) / 2;
+    int drawingY = (canvasHeight - drawingHeight) / 2;
+
+    paintImage(g, image, drawingX, drawingY, drawingWidth, drawingHeight);
   }
 
   protected void paintImage(final Graphics2D g, final BufferedImage image, final int x, final int y, final int width, final int height) {
