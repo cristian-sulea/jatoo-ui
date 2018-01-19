@@ -37,7 +37,7 @@ import jatoo.image.ImageUtils;
  * </ul>
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 3.0, January 19, 2018
+ * @version 2.1, January 19, 2018
  */
 @SuppressWarnings("serial")
 public class ImageCanvas extends JComponent {
@@ -47,9 +47,6 @@ public class ImageCanvas extends JComponent {
 
   /** Interpolation hint value (how an image is scaled during a rendering operation). */
   private Object interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
-
-  /** If <code>false</code> (default value), when image is smaller the canvas will not be filled with the image. */
-  private boolean fillCanvasWithSmallerImage = false;
 
   /**
    * Creates a canvas instance with no image.
@@ -113,20 +110,6 @@ public class ImageCanvas extends JComponent {
     repaint();
   }
 
-  /**
-   * @see #fillCanvasWithSmallerImage
-   */
-  public void setFillCanvasWithSmallerImage(boolean fill) {
-    this.fillCanvasWithSmallerImage = fill;
-  }
-
-  /**
-   * @see #fillCanvasWithSmallerImage
-   */
-  public boolean isFillCanvasWithSmallerImage() {
-    return fillCanvasWithSmallerImage;
-  }
-
   @Override
   protected final void paintComponent(final Graphics graphics) {
     super.paintComponent(graphics);
@@ -164,26 +147,12 @@ public class ImageCanvas extends JComponent {
 
   protected void paintImage(final Graphics2D g, final BufferedImage image, final int canvasWidth, final int canvasHeight) {
 
-    int drawingWidth;
-    int drawingHeight;
+    Dimension imageDrawingSize = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
 
-    if (!fillCanvasWithSmallerImage && (image.getWidth() < canvasWidth && image.getHeight() < canvasHeight)) {
-      drawingWidth = image.getWidth();
-      drawingHeight = image.getHeight();
-    }
+    int imageDrawingX = (canvasWidth - imageDrawingSize.width) / 2;
+    int imageDrawingY = (canvasHeight - imageDrawingSize.height) / 2;
 
-    else {
-
-      Dimension drawingSize = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
-
-      drawingWidth = drawingSize.width;
-      drawingHeight = drawingSize.height;
-    }
-
-    int drawingX = (canvasWidth - drawingWidth) / 2;
-    int drawingY = (canvasHeight - drawingHeight) / 2;
-
-    paintImage(g, image, drawingX, drawingY, drawingWidth, drawingHeight);
+    paintImage(g, image, imageDrawingX, imageDrawingY, imageDrawingSize.width, imageDrawingSize.height);
   }
 
   protected void paintImage(final Graphics2D g, final BufferedImage image, final int x, final int y, final int width, final int height) {
