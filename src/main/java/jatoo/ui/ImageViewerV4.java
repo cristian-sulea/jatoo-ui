@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 4.0, January 18, 2018
+ * @version 4.1, January 19, 2018
  */
 @SuppressWarnings("serial")
 public class ImageViewerV4 extends JScrollPane {
@@ -58,6 +58,9 @@ public class ImageViewerV4 extends JScrollPane {
 
   /** Image drag to scroll. */
   private final DragToScrollListener dragToScrollListener = new DragToScrollListener();
+
+  /** The image this viewer will display. */
+  private BufferedImage image;
 
   /**
    * The zoom percentage for the image to be displayed.
@@ -107,13 +110,13 @@ public class ImageViewerV4 extends JScrollPane {
   }
 
   /**
-   * Updates the image this viewer will display. If the value is null, nothing will be showed.
+   * Updates the image this viewer will display. If the value is <code>null</code>, nothing will be showed.
    * 
    * @param image
    *          the {@link BufferedImage} to be displayed
    */
   public final void setImage(final BufferedImage image) {
-    canvas.setImage(image);
+    canvas.setImage(this.image = image);
     zoom(ZOOM_BEST_FIT);
   }
 
@@ -137,100 +140,116 @@ public class ImageViewerV4 extends JScrollPane {
   /**
    * Zoom the image to the specified (percentage) value.
    * 
-   * @param zoom
+   * @param newZoom
    *          the new zoom, as a percent
    */
-  public final void zoom(final int zoom) {
+  public final void zoom(final int newZoom) {
 
-    if (zoom < ZOOM_BEST_FIT || zoom > ZOOM_REAL_SIZE * 3) {
-      return;
-    }
+    if (image != null) {
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("new zoom: " + zoom + " (old zoom: " + this.zoom + ")");
-    }
-
-    this.zoom = zoom;
-
-    final BufferedImage image = canvas.getImage();
-
-    //
-    // remember canvas size and visible rectangle before zooming
-
-    final Dimension oldCanvasSize = canvas.getSize();
-    final Rectangle oldCanvasVisibleRect = canvas.getVisibleRect();
-
-    //
-    // no image, no size
-
-    if (image == null || zoom == ZOOM_BEST_FIT) {
-      canvas.setPreferredSize(null);
-    }
-
-    else {
-
-      final int imageWidth = image.getWidth();
-      final int imageHeight = image.getHeight();
-
-      //
-      // if zoom is set to real size there is no need for calculations
-
-      if (zoom == ZOOM_REAL_SIZE) {
-        canvas.setPreferredSize(new Dimension(imageWidth, imageHeight));
+      if (logger.isDebugEnabled()) {
+        logger.debug("new zoom: " + newZoom + " (old zoom: " + zoom + ")");
       }
 
+      if (newZoom < ZOOM_BEST_FIT || newZoom > ZOOM_REAL_SIZE * 3) {
+
+        if (logger.isDebugEnabled()) {
+          logger.debug("new zoom is out of range");
+        }
+
+        return;
+      }
+
+      zoom = newZoom;
+
       //
-      // apply the zoom ratio to the image size
+      // remember canvas size and visible rectangle before zooming
+
+      final Dimension oldCanvasSize = canvas.getSize();
+      final Rectangle oldCanvasVisibleRect = canvas.getVisibleRect();
+
+      //
+      // reset canvas size if zoom is set to best fit
+
+      if (zoom == ZOOM_BEST_FIT) {
+        canvas.setPreferredSize(null);
+      }
 
       else {
 
-        final double ratio = ((double) zoom) / ((double) ZOOM_REAL_SIZE);
+        // System.out.println(getViewport().getWidth());
+        // canvas.setFillCanvasWithSmallerImage(getViewport().getWidth() < image.getWidth());
 
-        final double canvasWidth = ((double) (imageWidth - getViewport().getWidth())) * ratio;
-        final double canvasHeight = ((double) (imageHeight - getViewport().getHeight())) * ratio;
+        final int imageWidth = image.getWidth();
+        final int imageHeight = image.getHeight();
 
-        canvas.setPreferredSize(new Dimension((int) canvasWidth + getViewport().getWidth(), (int) canvasHeight + getViewport().getHeight()));
+        //
+        // there is no need for calculations if zoom is set to real size
+
+        if (zoom == ZOOM_REAL_SIZE) {
+          canvas.setPreferredSize(new Dimension(imageWidth, imageHeight));
+        }
+
+        //
+        // apply the zoom ratio to the image size
+
+        else {
+
+          final double ratio = ((double) zoom) / ((double) ZOOM_REAL_SIZE);
+
+          final double canvasWidth = ((double) (imageWidth)) * ratio;
+          final double canvasHeight = ((double) (imageHeight)) * ratio;
+
+          canvas.setPreferredSize(new Dimension((int) canvasWidth, (int) canvasHeight));
+        }
       }
+
+      //
+      // revalidation
+      // do not use #revaliade() method, validation will occur after all currently
+      // pending events have been dispatched, use invalidate/validate/repaint
+
+      canvas.invalidate();
+      canvas.validate();
+      canvas.repaint();
+
+      invalidate();
+      validate();
+      repaint();
+
+      //
+      // update the visible rectangle (after the zooming):
+      //
+      // - calculate the center of the old visible rectangle
+      // - calculate the ratio (new size vs old size)
+      // - apply the ratio to the old center
+      // - calculate the new visible rectangle (using the translated center)
+      // - scroll to make visible the new rectangle
+
+      final int oldCanvasVisibleRectCenterX = oldCanvasVisibleRect.x + oldCanvasVisibleRect.width / 2;
+      final int oldCanvasVisibleRectCenterY = oldCanvasVisibleRect.y + oldCanvasVisibleRect.height / 2;
+
+      final Dimension zoomedCanvasSize = canvas.getSize();
+
+      final double xRatio = zoomedCanvasSize.getWidth() / oldCanvasSize.getWidth();
+      final double yRatio = zoomedCanvasSize.getHeight() / oldCanvasSize.getHeight();
+
+      final int zoomedCanvasVisibleRectCenterX = (int) (oldCanvasVisibleRectCenterX * xRatio);
+      final int zoomedCanvasVisibleRectCenterY = (int) (oldCanvasVisibleRectCenterY * yRatio);
+
+      Rectangle zoomedCanvasVisibleRect = new Rectangle(oldCanvasVisibleRect.getSize());
+      zoomedCanvasVisibleRect.x = zoomedCanvasVisibleRectCenterX - oldCanvasVisibleRect.width / 2;
+      zoomedCanvasVisibleRect.y = zoomedCanvasVisibleRectCenterY - oldCanvasVisibleRect.height / 2;
+
+      canvas.scrollRectToVisible(zoomedCanvasVisibleRect);
     }
 
     //
-    // revalidation
-    // do not use #revaliade() method, validation will occur after all currently
-    // pending events have been dispatched, use invalidate/validate/repaint
+    // no need to do anything if the image is null
 
-    canvas.invalidate();
-    canvas.validate();
-    canvas.repaint();
-
-    invalidate();
-    validate();
-    repaint();
-
-    //
-    // update the visible rectangle (after the zooming):
-    //
-    // - calculate the center of the old visible rectangle
-    // - calculate the ratio (new size vs old size)
-    // - apply the ratio to the old center
-    // - calculate the new visible rectangle (using the translated center)
-    // - scroll to make visible the new rectangle
-
-    final int oldCanvasVisibleRectCenterX = oldCanvasVisibleRect.x + oldCanvasVisibleRect.width / 2;
-    final int oldCanvasVisibleRectCenterY = oldCanvasVisibleRect.y + oldCanvasVisibleRect.height / 2;
-
-    final Dimension zoomedCanvasSize = canvas.getSize();
-
-    final double xRatio = zoomedCanvasSize.getWidth() / oldCanvasSize.getWidth();
-    final double yRatio = zoomedCanvasSize.getHeight() / oldCanvasSize.getHeight();
-
-    final int zoomedCanvasVisibleRectCenterX = (int) (oldCanvasVisibleRectCenterX * xRatio);
-    final int zoomedCanvasVisibleRectCenterY = (int) (oldCanvasVisibleRectCenterY * yRatio);
-
-    Rectangle zoomedCanvasVisibleRect = new Rectangle(oldCanvasVisibleRect.getSize());
-    zoomedCanvasVisibleRect.x = zoomedCanvasVisibleRectCenterX - oldCanvasVisibleRect.width / 2;
-    zoomedCanvasVisibleRect.y = zoomedCanvasVisibleRectCenterY - oldCanvasVisibleRect.height / 2;
-
-    canvas.scrollRectToVisible(zoomedCanvasVisibleRect);
+    else {
+      canvas.setPreferredSize(null);
+    }
 
     //
     // don't forget about the cursor
