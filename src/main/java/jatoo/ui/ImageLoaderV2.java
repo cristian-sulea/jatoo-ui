@@ -40,8 +40,11 @@ public class ImageLoaderV2 implements Runnable {
   private boolean stopped;
 
   public ImageLoaderV2(final ImageLoaderV2Listener listener) {
+
     this.listener = listener;
+
     this.thread = new Thread(this);
+    this.thread.setDaemon(true);
   }
 
   public void startLoading(File file) {
