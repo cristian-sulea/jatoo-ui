@@ -214,6 +214,18 @@ public class UIUtils {
   }
 
   //
+  // --- DELETE
+  //
+
+  private static final KeyStroke DELETE_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
+  private static final String DELETE_ACTION_MAP_KEY = "DELETE_ACTION_MAP_KEY";
+
+  public static void setActionForDeleteKeyStroke(JComponent component, Action action) {
+    component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(DELETE_KEY_STROKE, DELETE_ACTION_MAP_KEY);
+    component.getActionMap().put(DELETE_ACTION_MAP_KEY, action);
+  }
+
+  //
   // --- Ctrl + DOWN, LEFT, RIGHT UP
   //
 
