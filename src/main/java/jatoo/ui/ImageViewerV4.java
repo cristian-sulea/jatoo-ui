@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 4.1, January 19, 2018
+ * @version 4.2, January 25, 2018
  */
 @SuppressWarnings("serial")
 public class ImageViewerV4 extends JScrollPane {
@@ -49,6 +49,12 @@ public class ImageViewerV4 extends JScrollPane {
 
   /** Zoom value representing the real size. */
   private static final int ZOOM_REAL_SIZE = 100;
+
+  /** Zoom minimum size. */
+  private static final int ZOOM_MIN_VALUE = ZOOM_BEST_FIT;
+
+  /** Zoom maximum size. */
+  private static final int ZOOM_MAX_VALUE = ZOOM_REAL_SIZE * 4;
 
   /** The canvas used by this image viewer to display the images. */
   private final ImageCanvas canvas = new ImageCanvas();
@@ -75,7 +81,7 @@ public class ImageViewerV4 extends JScrollPane {
   private int zoom = ZOOM_BEST_FIT;
 
   /** The zoom step value zoom in/out. */
-  private int zoomStep = 25;
+  private int zoomStep = 10;
 
   /**
    * Creates a viewer instance with no image.
@@ -151,7 +157,7 @@ public class ImageViewerV4 extends JScrollPane {
         logger.debug("new zoom: " + newZoom + " (old zoom: " + zoom + ")");
       }
 
-      if (newZoom < ZOOM_BEST_FIT || newZoom > ZOOM_REAL_SIZE * 3) {
+      if (newZoom < ZOOM_MIN_VALUE || newZoom > ZOOM_MAX_VALUE) {
 
         if (logger.isDebugEnabled()) {
           logger.debug("new zoom is out of range");
@@ -289,16 +295,30 @@ public class ImageViewerV4 extends JScrollPane {
   }
 
   public final void zoomOut() {
+
     zoomOut(getAutoZoomStep());
+
+    if (new Rectangle(getViewport().getSize()).contains(new Rectangle(canvas.getSize()))) {
+      if (getZoom() > ZOOM_MIN_VALUE && getZoom() < ZOOM_MAX_VALUE) {
+        zoomOut();
+      }
+    }
   }
 
   public final void zoomIn() {
+
     zoomIn(getAutoZoomStep());
+
+    if (new Rectangle(getViewport().getSize()).contains(new Rectangle(canvas.getSize()))) {
+      if (getZoom() > ZOOM_MIN_VALUE && getZoom() < ZOOM_MAX_VALUE) {
+        zoomIn();
+      }
+    }
   }
 
   private int getAutoZoomStep() {
     if (zoom >= ZOOM_REAL_SIZE * 2) {
-      return zoomStep * 4;
+      return zoomStep * 5;
     } else if (zoom >= ZOOM_REAL_SIZE) {
       return zoomStep * 2;
     } else {
