@@ -30,7 +30,8 @@ public class ImageLoaderV2 implements Runnable {
 
   private final Log logger = LogFactory.getLog(getClass());
 
-  private final ImageLoaderV2Listener listener;
+  private final ImageLoaderV2Listener[] listeners;
+
   private final Thread thread;
 
   private File file;
@@ -39,9 +40,9 @@ public class ImageLoaderV2 implements Runnable {
   private boolean started;
   private boolean stopped;
 
-  public ImageLoaderV2(final ImageLoaderV2Listener listener) {
+  public ImageLoaderV2(final ImageLoaderV2Listener... listeners) {
 
-    this.listener = listener;
+    this.listeners = listeners;
 
     this.thread = new Thread(this);
     this.thread.setDaemon(true);
@@ -89,7 +90,9 @@ public class ImageLoaderV2 implements Runnable {
 
     while (true) {
 
-      listener.onStartLoading(file);
+      for (ImageLoaderV2Listener listener : listeners) {
+        listener.onStartLoading(file);
+      }
 
       this.started = false;
       this.stopped = false;
@@ -101,7 +104,9 @@ public class ImageLoaderV2 implements Runnable {
         stream = new FileInputStream(file);
         image = ImageUtils.read(stream);
 
-        listener.onImageLoaded(file, image);
+        for (ImageLoaderV2Listener listener : listeners) {
+          listener.onImageLoaded(file, image);
+        }
       }
 
       catch (IOException e) {
@@ -109,7 +114,11 @@ public class ImageLoaderV2 implements Runnable {
         image = null;
 
         if (!stopped) {
-          listener.onImageError(file, e);
+
+          for (ImageLoaderV2Listener listener : listeners) {
+            listener.onImageError(file, e);
+          }
+
           logger.warn("image could not be read from file: " + file, e);
         }
       }
