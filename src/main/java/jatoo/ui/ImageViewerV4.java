@@ -122,7 +122,15 @@ public class ImageViewerV4 extends JScrollPane {
    *          the {@link BufferedImage} to be displayed
    */
   public final void setImage(final BufferedImage image) {
-    canvas.setImage(this.image = image);
+    this.image = image;
+
+    if (image.getWidth() < canvas.getWidth() && image.getHeight() < canvas.getHeight()) {
+      canvas.setInterpolationNearestNeighbor();
+    } else {
+      canvas.setInterpolationBicubic();
+    }
+    canvas.setImage(image);
+
     zoom(ZOOM_BEST_FIT);
   }
 
@@ -179,6 +187,7 @@ public class ImageViewerV4 extends JScrollPane {
 
       if (zoom == ZOOM_BEST_FIT) {
         canvas.setPreferredSize(null);
+        canvas.setPaintRealSize(false);
       }
 
       else {
@@ -193,7 +202,16 @@ public class ImageViewerV4 extends JScrollPane {
         // there is no need for calculations if zoom is set to real size
 
         if (zoom == ZOOM_REAL_SIZE) {
-          canvas.setPreferredSize(new Dimension(imageWidth, imageHeight));
+
+          if (image.getWidth() < canvas.getWidth() && image.getHeight() < canvas.getHeight()) {
+            canvas.setPreferredSize(null);
+            canvas.setPaintRealSize(true);
+          }
+
+          else {
+            canvas.setPreferredSize(new Dimension(imageWidth, imageHeight));
+            canvas.setPaintRealSize(false);
+          }
         }
 
         //
