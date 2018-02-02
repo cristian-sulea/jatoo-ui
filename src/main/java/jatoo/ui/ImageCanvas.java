@@ -31,19 +31,22 @@ import jatoo.image.ImageUtils;
  * 
  * Some rules are applied to the painted image:
  * <ul>
- * <li>the image will be resized to fit the max size of the canvas</li>
+ * <li>the image will be resized to fit the max size of the canvas (unless {@link #isPaintRealSize()})</li>
  * <li>the ratio will be preserved</li>
  * <li>the resized image will be centered</li>
  * </ul>
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.1, January 19, 2018
+ * @version 3.0, February 2, 2018
  */
 @SuppressWarnings("serial")
 public class ImageCanvas extends JComponent {
 
   /** The image that the canvas paints. */
   private BufferedImage image;
+
+  /** Do not resize to fit the max size of the canvas. */
+  private boolean paintRealSize = false;
 
   /** Interpolation hint value (how an image is scaled during a rendering operation). */
   private Object interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
@@ -81,6 +84,14 @@ public class ImageCanvas extends JComponent {
    */
   public final BufferedImage getImage() {
     return image;
+  }
+
+  public void setPaintRealSize(boolean paintRealSize) {
+    this.paintRealSize = paintRealSize;
+  }
+
+  public boolean isPaintRealSize() {
+    return paintRealSize;
   }
 
   /**
@@ -147,7 +158,13 @@ public class ImageCanvas extends JComponent {
 
   protected void paintImage(final Graphics2D g, final BufferedImage image, final int canvasWidth, final int canvasHeight) {
 
-    Dimension imageDrawingSize = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
+    final Dimension imageDrawingSize;
+
+    if (paintRealSize) {
+      imageDrawingSize = new Dimension(image.getWidth(), image.getHeight());
+    } else {
+      imageDrawingSize = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
+    }
 
     int imageDrawingX = (canvasWidth - imageDrawingSize.width) / 2;
     int imageDrawingY = (canvasHeight - imageDrawingSize.height) / 2;
