@@ -124,14 +124,21 @@ public class ImageViewerV4 extends JScrollPane {
   public final void setImage(final BufferedImage image) {
     this.image = image;
 
-    if (image.getWidth() < canvas.getWidth() && image.getHeight() < canvas.getHeight()) {
+    boolean isImageSmaller = isImageSmaller();
+
+    if (isImageSmaller) {
       canvas.setInterpolationNearestNeighbor();
     } else {
       canvas.setInterpolationBicubic();
     }
+
     canvas.setImage(image);
 
-    zoom(ZOOM_BEST_FIT);
+    if (isImageSmaller) {
+      zoom(ZOOM_REAL_SIZE);
+    } else {
+      zoom(ZOOM_BEST_FIT);
+    }
   }
 
   /**
@@ -203,7 +210,7 @@ public class ImageViewerV4 extends JScrollPane {
 
         if (zoom == ZOOM_REAL_SIZE) {
 
-          if (image.getWidth() < canvas.getWidth() && image.getHeight() < canvas.getHeight()) {
+          if (isImageSmaller()) {
             canvas.setPreferredSize(null);
             canvas.setPaintRealSize(true);
           }
@@ -376,6 +383,15 @@ public class ImageViewerV4 extends JScrollPane {
     return zoom == ZOOM_REAL_SIZE;
   }
 
+  private boolean isImageSmaller() {
+
+    if (image == null) {
+      return true;
+    }
+
+    return image.getWidth() < getWidth() && image.getHeight() < getHeight();
+  }
+
   /**
    * Mouse listener for zooming the image in and out with the mouse wheel.
    */
@@ -383,6 +399,11 @@ public class ImageViewerV4 extends JScrollPane {
 
     @Override
     public void mouseWheelMoved(final MouseWheelEvent e) {
+
+      if (isImageSmaller()) {
+        return;
+      }
+
       if (e.getPreciseWheelRotation() > 0) {
         zoomOut();
       } else {
