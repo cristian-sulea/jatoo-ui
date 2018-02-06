@@ -26,26 +26,42 @@ import org.apache.commons.logging.LogFactory;
 
 import jatoo.image.ImageUtils;
 
+/**
+ * A "loader" thread where images can be loaded one at the time, with the option to drop current loading.
+ * 
+ * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
+ * @version 2.0, February 6, 2018
+ */
 public class ImageLoaderV2 implements Runnable {
 
   private final Log logger = LogFactory.getLog(getClass());
 
-  private final ImageLoaderV2Listener[] listeners;
+  private ImageLoaderV2Listener[] listeners;
 
   private final Thread thread;
+  private boolean threadStopped;
 
   private File file;
   private FileInputStream stream;
 
-  private boolean started;
-  private boolean stopped;
+  private boolean loadingStarted;
+  private boolean loadingStopped;
 
   public ImageLoaderV2(final ImageLoaderV2Listener... listeners) {
 
     this.listeners = listeners;
 
-    this.thread = new Thread(this);
-    this.thread.setDaemon(true);
+    thread = new Thread(this);
+    thread.setDaemon(true);
+  }
+
+  public void stopThread() {
+
+    threadStopped = true;
+
+    synchronized (this) {
+      notifyAll();
+    }
   }
 
   public void startLoading(File file) {
@@ -53,6 +69,7 @@ public class ImageLoaderV2 implements Runnable {
     if (!thread.isAlive()) {
       synchronized (thread) {
         if (!thread.isAlive()) {
+          threadStopped = false;
           thread.start();
         }
       }
@@ -63,18 +80,18 @@ public class ImageLoaderV2 implements Runnable {
     this.file = file;
 
     synchronized (this) {
-      this.started = true;
-      this.notifyAll();
+      loadingStarted = true;
+      notifyAll();
     }
   }
 
   public void startReloading() {
-    startLoading(this.file);
+    startLoading(file);
   }
 
   public void stopLoading() {
 
-    this.stopped = true;
+    loadingStopped = true;
 
     if (stream != null) {
       try {
@@ -88,14 +105,14 @@ public class ImageLoaderV2 implements Runnable {
   @Override
   public void run() {
 
-    while (true) {
+    while (!threadStopped) {
 
       for (ImageLoaderV2Listener listener : listeners) {
         listener.onStartLoading(file);
       }
 
-      this.started = false;
-      this.stopped = false;
+      loadingStarted = false;
+      loadingStopped = false;
 
       BufferedImage image;
 
@@ -113,7 +130,7 @@ public class ImageLoaderV2 implements Runnable {
 
         image = null;
 
-        if (!stopped) {
+        if (!loadingStopped) {
 
           for (ImageLoaderV2Listener listener : listeners) {
             listener.onImageError(file, e);
@@ -135,12 +152,12 @@ public class ImageLoaderV2 implements Runnable {
 
       synchronized (this) {
 
-        if (started) {
+        if (loadingStarted) {
           continue;
         }
 
         try {
-          this.wait();
+          wait();
         } catch (InterruptedException e) {
           logger.error("thread can't wait ???...", e);
         }
