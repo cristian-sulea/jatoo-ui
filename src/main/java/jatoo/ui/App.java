@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
 import javax.swing.WindowConstants;
 
@@ -38,7 +39,7 @@ import jatoo.properties.FileProperties;
  * A generic base class created to ease the start of the java applications.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.0, January 25, 2018
+ * @version 2.1, February 6, 2018
  */
 public abstract class App {
 
@@ -57,15 +58,9 @@ public abstract class App {
     //
     // add shutdown hook to save properties
 
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      public void run() {
-
-        properties.setProperty("location", window.getLocation());
-        properties.setProperty("size", window.getSize());
-
-        properties.saveSilently();
-      }
-    });
+    // Runtime.getRuntime().addShutdownHook(new Thread() {
+    // public void run() {}
+    // });
 
     //
     // icons
@@ -98,13 +93,24 @@ public abstract class App {
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
   }
 
-  public void setContentPane(Container contentPane) {
-    ((RootPaneContainer) window).getRootPane().setContentPane(contentPane);
-  }
-
   public abstract void setTitle(String title);
 
   public abstract void setDefaultCloseOperation(int operation);
+
+  public void saveProperties() {
+
+    properties.setProperty("location", window.getLocation());
+    properties.setProperty("size", window.getSize());
+
+    properties.saveSilently();
+  }
+
+  /**
+   * @see JRootPane#setContentPane(Container)
+   */
+  public void setContentPane(Container contentPane) {
+    ((RootPaneContainer) window).getRootPane().setContentPane(contentPane);
+  }
 
   /**
    * @see java.awt.Window#setVisible(boolean)
@@ -114,17 +120,22 @@ public abstract class App {
   }
 
   /**
-   * 
    * @see java.awt.Window#dispose()
    */
   public void dispose() {
     window.dispose();
   }
 
+  /**
+   * @see DropTarget
+   */
   public void addDropTargetListener(DropTargetListener listener) {
     new DropTarget(window, listener);
   }
 
+  /**
+   * @see JOptionPane#showConfirmDialog(java.awt.Component, Object, String, int, int, javax.swing.Icon)
+   */
   public boolean showConfirmationWarning(String title, String message) {
     return JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(window, message, title, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
   }
