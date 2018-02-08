@@ -32,7 +32,7 @@ import javax.swing.JFrame;
 import jatoo.image.ImageMemoryCache;
 import jatoo.image.ImageThumbnails;
 import jatoo.image.ImageUtils;
-import jatoo.ui.ImageLoader;
+import jatoo.ui.ImageLoaderOldV1;
 import jatoo.ui.UIUtils;
 
 @SuppressWarnings("serial")
@@ -61,7 +61,7 @@ public class JaTooImager extends JFrame {
 
   private JaTooImagerCanvas canvas;
 
-  private ImageLoader imageLoader;
+  private ImageLoaderOldV1 imageLoader;
 
   public JaTooImager(File file) throws Exception {
 
@@ -163,7 +163,7 @@ public class JaTooImager extends JFrame {
       imageLoader.forceStop();
     }
 
-    imageLoader = new ImageLoader(file) {
+    imageLoader = new ImageLoaderOldV1(file) {
 
       @Override
       protected void onLoaderStart(File file, boolean isForceStop) {

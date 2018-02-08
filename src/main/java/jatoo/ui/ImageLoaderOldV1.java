@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import jatoo.image.ImageUtils;
 
-public abstract class ImageLoader implements Runnable {
+public abstract class ImageLoaderOldV1 implements Runnable {
 
   private final Log logger = LogFactory.getLog(getClass());
 
@@ -36,11 +36,11 @@ public abstract class ImageLoader implements Runnable {
 
   private boolean isForceStop = false;
 
-  public ImageLoader(final File file) {
+  public ImageLoaderOldV1(final File file) {
     this(file, true);
   }
 
-  public ImageLoader(final File file, final boolean start) {
+  public ImageLoaderOldV1(final File file, final boolean start) {
 
     this.file = file;
 
