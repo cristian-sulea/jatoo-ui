@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
@@ -36,23 +38,23 @@ import javax.swing.WindowConstants;
 import jatoo.properties.FileProperties;
 
 /**
- * A generic base class created to ease the start of the java applications.
+ * A generic base class created to ease the work with java window applications, like {@link JFrame} and {@link JDialog}.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.1, February 6, 2018
+ * @version 3.0, February 8, 2018
  */
-public abstract class App {
+public abstract class AppWindow {
 
-  private final FileProperties properties = new FileProperties(new File(System.getProperty("user.home"), getClass().getName() + ".properties"));
+  private final Window window;
+  private final FileProperties properties;
 
-  protected final Window window;
-
-  protected App(Window window) {
+  protected AppWindow(Window window) {
     this.window = window;
 
     //
-    // load properties
+    // properties
 
+    properties = new FileProperties(new File(System.getProperty("user.home"), getClass().getName() + ".properties"));
     properties.loadSilently();
 
     //
@@ -91,6 +93,10 @@ public abstract class App {
     // default close operation is DISPOSE
 
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+  }
+
+  Window getWindow() {
+    return window;
   }
 
   public abstract void setTitle(String title);

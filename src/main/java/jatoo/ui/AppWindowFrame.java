@@ -19,14 +19,14 @@ package jatoo.ui;
 import javax.swing.JFrame;
 
 /**
- * A specialized {@link JFrame} implementation for the {@link App} base class.
+ * A specialized {@link JFrame} implementation for the {@link AppWindow} base class.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.0, January 25, 2018
+ * @version 1.1, February 8, 2018
  */
-public class AppFrame extends App {
+public class AppWindowFrame extends AppWindow {
 
-  public AppFrame() {
+  public AppWindowFrame() {
     super(new JFrame());
   }
 
@@ -44,6 +44,6 @@ public class AppFrame extends App {
   }
 
   private JFrame getFrame() {
-    return (JFrame) window;
+    return (JFrame) getWindow();
   }
 }

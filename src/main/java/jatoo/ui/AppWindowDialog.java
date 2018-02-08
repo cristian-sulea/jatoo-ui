@@ -19,14 +19,14 @@ package jatoo.ui;
 import javax.swing.JDialog;
 
 /**
- * A specialized {@link JDialog} implementation for the {@link App} base class.
+ * A specialized {@link JDialog} implementation for the {@link AppWindow} base class.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.0, January 25, 2018
+ * @version 1.1, February 8, 2018
  */
-public class AppDialog extends App {
+public class AppWindowDialog extends AppWindow {
 
-  public AppDialog() {
+  public AppWindowDialog() {
     super(new JDialog());
   }
 
@@ -44,6 +44,6 @@ public class AppDialog extends App {
   }
 
   private JDialog getDialog() {
-    return (JDialog) window;
+    return (JDialog) getWindow();
   }
 }
