@@ -32,11 +32,11 @@ import jatoo.image.ImageUtils;
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
  * @version 2.0, February 6, 2018
  */
-public class ImageLoaderV2 implements Runnable {
+public class ImageLoader implements Runnable {
 
   private final Log logger = LogFactory.getLog(getClass());
 
-  private ImageLoaderV2Listener[] listeners;
+  private ImageLoaderListener[] listeners;
 
   private final Thread thread;
   private boolean threadStopped;
@@ -47,7 +47,7 @@ public class ImageLoaderV2 implements Runnable {
   private boolean loadingStarted;
   private boolean loadingStopped;
 
-  public ImageLoaderV2(final ImageLoaderV2Listener... listeners) {
+  public ImageLoader(final ImageLoaderListener... listeners) {
 
     this.listeners = listeners;
 
@@ -107,7 +107,7 @@ public class ImageLoaderV2 implements Runnable {
 
     while (!threadStopped) {
 
-      for (ImageLoaderV2Listener listener : listeners) {
+      for (ImageLoaderListener listener : listeners) {
         listener.onStartLoading(file);
       }
 
@@ -121,7 +121,7 @@ public class ImageLoaderV2 implements Runnable {
         stream = new FileInputStream(file);
         image = ImageUtils.read(stream);
 
-        for (ImageLoaderV2Listener listener : listeners) {
+        for (ImageLoaderListener listener : listeners) {
           listener.onImageLoaded(file, image);
         }
       }
@@ -132,7 +132,7 @@ public class ImageLoaderV2 implements Runnable {
 
         if (!loadingStopped) {
 
-          for (ImageLoaderV2Listener listener : listeners) {
+          for (ImageLoaderListener listener : listeners) {
             listener.onImageError(file, e);
           }
 

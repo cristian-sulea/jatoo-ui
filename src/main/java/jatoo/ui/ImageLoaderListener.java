@@ -19,7 +19,7 @@ package jatoo.ui;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-public interface ImageLoaderV2Listener {
+public interface ImageLoaderListener {
 
   abstract void onStartLoading(File file);
 
