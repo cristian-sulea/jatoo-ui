@@ -147,7 +147,7 @@ public class ImageViewerV4 extends JScrollPane {
    * @return the {@link BufferedImage} this viewer is showing, or <code>null</code> if there is no image to be showed
    */
   public final BufferedImage getImage() {
-    return canvas.getImage();
+    return image;
   }
 
   public void setZoomStep(final int zoomStep) {
