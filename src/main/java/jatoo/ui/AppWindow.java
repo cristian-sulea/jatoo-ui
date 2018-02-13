@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -41,7 +42,7 @@ import jatoo.properties.FileProperties;
  * A generic base class created to ease the work with java window applications, like {@link JFrame} and {@link JDialog}.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 3.0, February 8, 2018
+ * @version 3.1, February 9, 2018
  */
 public abstract class AppWindow {
 
@@ -114,8 +115,15 @@ public abstract class AppWindow {
   /**
    * @see JRootPane#setContentPane(Container)
    */
-  public void setContentPane(Container contentPane) {
+  public void setContentPane(JComponent contentPane) {
     ((RootPaneContainer) window).getRootPane().setContentPane(contentPane);
+  }
+
+  /**
+   * @see JRootPane#getContentPane()
+   */
+  public JComponent getContentPane() {
+    return (JComponent) ((RootPaneContainer) window).getRootPane().getContentPane();
   }
 
   /**
