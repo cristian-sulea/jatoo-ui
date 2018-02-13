@@ -30,7 +30,7 @@ import jatoo.image.ImageUtils;
  * A "loader" thread where images can be loaded one at the time, with the option to drop current loading.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 2.0, February 6, 2018
+ * @version 2.1, February 13, 2018
  */
 public class ImageLoader implements Runnable {
 
@@ -122,6 +122,11 @@ public class ImageLoader implements Runnable {
         image = ImageUtils.read(stream);
 
         for (ImageLoaderListener listener : listeners) {
+
+          if (loadingStopped) {
+            break;
+          }
+
           listener.onImageLoaded(file, image);
         }
       }
