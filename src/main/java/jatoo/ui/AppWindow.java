@@ -37,7 +37,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
-import javax.swing.WindowConstants;
 
 import jatoo.properties.FileProperties;
 
@@ -45,7 +44,7 @@ import jatoo.properties.FileProperties;
  * A generic base class created to ease the work with java window applications, like {@link JFrame} and {@link JDialog}.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 3.1, February 9, 2018
+ * @version 3.2, February 14, 2018
  */
 public abstract class AppWindow {
 
@@ -92,11 +91,6 @@ public abstract class AppWindow {
     if (!UIUtils.isVisibleOnTheScreen(window)) {
       UIUtils.centerWindowOnScreen(window, 50, 50);
     }
-
-    //
-    // default close operation is DISPOSE
-
-    setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
   }
 
   Window getWindow() {
