@@ -23,6 +23,9 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -138,6 +141,27 @@ public abstract class AppWindow {
    */
   public void dispose() {
     window.dispose();
+  }
+
+  /**
+   * @see java.awt.Window#addWindowListener(java.awt.event.WindowListener)
+   */
+  public void addWindowListener(WindowListener l) {
+    window.addWindowListener(l);
+  }
+
+  /**
+   * @see java.awt.Window#addWindowStateListener(java.awt.event.WindowStateListener)
+   */
+  public void addWindowStateListener(WindowStateListener l) {
+    window.addWindowStateListener(l);
+  }
+
+  /**
+   * @see java.awt.Window#addWindowFocusListener(java.awt.event.WindowFocusListener)
+   */
+  public void addWindowFocusListener(WindowFocusListener l) {
+    window.addWindowFocusListener(l);
   }
 
   /**
