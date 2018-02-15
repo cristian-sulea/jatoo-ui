@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 4.2, January 25, 2018
+ * @version 4.3, February 15, 2018
  */
 @SuppressWarnings("serial")
 public class ImageViewerV4 extends JScrollPane {
@@ -321,6 +321,10 @@ public class ImageViewerV4 extends JScrollPane {
 
   public final void zoomOut() {
 
+    if (isImageSmaller()) {
+      return;
+    }
+
     zoomOut(getAutoZoomStep());
 
     if (new Rectangle(getViewport().getSize()).contains(new Rectangle(canvas.getSize()))) {
@@ -331,6 +335,10 @@ public class ImageViewerV4 extends JScrollPane {
   }
 
   public final void zoomIn() {
+
+    if (isImageSmaller()) {
+      return;
+    }
 
     zoomIn(getAutoZoomStep());
 
