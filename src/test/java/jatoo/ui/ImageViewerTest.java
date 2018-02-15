@@ -39,7 +39,7 @@ public class ImageViewerTest {
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
 //    image = ImageUtils.create("Loading...", null, Color.DARK_GRAY, Color.LIGHT_GRAY, true);
-    final ImageViewerV4 imageViewer = new ImageViewerV4(image);
+    final ImageViewer imageViewer = new ImageViewer(image);
 //    imageCanvas.setPreferredSize(new Dimension(image.getWidth(null), image.getHeight(null)));
 
     final JFrame frame = new JFrame(ImageViewerTest.class.getSimpleName());

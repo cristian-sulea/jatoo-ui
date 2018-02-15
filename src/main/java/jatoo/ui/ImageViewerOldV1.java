@@ -16,23 +16,31 @@
 
 package jatoo.ui;
 
+import jatoo.image.ImageUtils;
+
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputAdapter;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import jatoo.image.ImageUtils;
 
 /**
  * A "viewer" component where images can be displayed, one at a time.
@@ -41,7 +49,7 @@ import jatoo.image.ImageUtils;
  * @version 3.5, July 31, 2014
  */
 @SuppressWarnings("serial")
-public class ImageViewerV2 extends JScrollPane {
+public class ImageViewerOldV1 extends JComponent {
 
   /** The logger. */
   private final Log logger = LogFactory.getLog(getClass());
@@ -57,6 +65,18 @@ public class ImageViewerV2 extends JScrollPane {
 
   /** The canvas used by this image viewer to display the images. */
   private final ImageCanvas imageCanvas;
+
+  /**
+   * We don't want the canvas to infinitely grow (the maximum size is based on
+   * original image size with the zoom ratio applied).
+   */
+  private final Dimension imageCanvasMaxSize = new Dimension();
+
+  /** The main container for image canvas. */
+  private final JPanel imageCanvasContainer;
+
+  /** The scroll pane container for image canvas. */
+  private final JScrollPane imageCanvasScrollPane;
 
   /** Image zoom with mouse wheel. */
   private final WheelZoomListener imageCanvasScrollPaneWheelZoomListener = new WheelZoomListener();
@@ -79,7 +99,7 @@ public class ImageViewerV2 extends JScrollPane {
   /**
    * Creates a viewer instance with no image.
    */
-  public ImageViewerV2() {
+  public ImageViewerOldV1() {
     this(null);
   }
 
@@ -89,19 +109,112 @@ public class ImageViewerV2 extends JScrollPane {
    * @param image
    *          the {@link BufferedImage} to be displayed
    */
-  public ImageViewerV2(final BufferedImage image) {
+  public ImageViewerOldV1(final BufferedImage image) {
 
     imageCanvas = new ImageCanvas(image);
-    imageCanvas.setCursor(UITheme.getCursorDefault());
 
-    setViewportView(imageCanvas);
-    setBorder(BorderFactory.createEmptyBorder());
-    setViewportBorder(BorderFactory.createEmptyBorder());
+    imageCanvasContainer = new JPanel();
+    imageCanvasContainer.setCursor(UITheme.getCursorDefault());
+    imageCanvasContainer.add(imageCanvas);
+    imageCanvasContainer.setLayout(new LayoutManager() {
 
-    getViewport().addMouseWheelListener(imageCanvasScrollPaneWheelZoomListener);
+      @Override
+      public void layoutContainer(final Container container) {
 
-    getViewport().addMouseMotionListener(imageCanvasScrollPaneDragToScrollListener);
-    getViewport().addMouseListener(imageCanvasScrollPaneDragToScrollListener);
+        synchronized (container.getTreeLock()) {
+          synchronized (imageCanvasMaxSize) {
+
+            final int containerWidth = container.getWidth();
+            final int containerHeight = container.getHeight();
+
+            int imageCanvasX = 0;
+            int imageCanvasY = 0;
+            int imageCanvasWidth = containerWidth;
+            int imageCanvasHeight = containerHeight;
+
+            if (imageCanvasMaxSize.width == 0 || imageCanvasMaxSize.height == 0) {
+
+              final BufferedImage image = imageCanvas.getImage();
+
+              if (image != null) {
+
+                final int imageWidth = image.getWidth();
+                final int imageHeight = image.getHeight();
+
+                if (containerWidth > imageWidth) {
+                  imageCanvasWidth = imageWidth;
+                  imageCanvasX = (containerWidth - imageCanvasWidth) / 2;
+                }
+
+                if (containerHeight > imageHeight) {
+                  imageCanvasHeight = imageHeight;
+                  imageCanvasY = (containerHeight - imageCanvasHeight) / 2;
+                }
+              }
+            }
+
+            else {
+
+              if (containerWidth > imageCanvasMaxSize.width) {
+                imageCanvasWidth = imageCanvasMaxSize.width;
+                imageCanvasX = (containerWidth - imageCanvasWidth) / 2;
+              }
+
+              if (containerHeight > imageCanvasMaxSize.height) {
+                imageCanvasHeight = imageCanvasMaxSize.height;
+                imageCanvasY = (containerHeight - imageCanvasHeight) / 2;
+              }
+            }
+
+            imageCanvas.setBounds(imageCanvasX, imageCanvasY, imageCanvasWidth, imageCanvasHeight);
+          }
+        }
+      }
+
+      @Override
+      public Dimension preferredLayoutSize(final Container container) {
+
+        synchronized (container.getTreeLock()) {
+          synchronized (imageCanvasMaxSize) {
+
+            //
+            // is mandatory to be a NEW object
+
+            return new Dimension(imageCanvasMaxSize);
+          }
+        }
+      }
+
+      @Override
+      public Dimension minimumLayoutSize(final Container container) {
+
+        synchronized (container.getTreeLock()) {
+          synchronized (imageCanvasMaxSize) {
+
+            //
+            // is mandatory to be a NEW object
+
+            return new Dimension(imageCanvasMaxSize);
+          }
+        }
+      }
+
+      public void addLayoutComponent(final String name, final Component comp) {}
+
+      public void removeLayoutComponent(final Component comp) {}
+    });
+
+    imageCanvasScrollPane = new JScrollPane(imageCanvasContainer);
+    imageCanvasScrollPane.setBorder(BorderFactory.createEmptyBorder());
+    imageCanvasScrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
+
+    imageCanvasScrollPane.getViewport().addMouseWheelListener(imageCanvasScrollPaneWheelZoomListener);
+
+    imageCanvasScrollPane.getViewport().addMouseMotionListener(imageCanvasScrollPaneDragToScrollListener);
+    imageCanvasScrollPane.getViewport().addMouseListener(imageCanvasScrollPaneDragToScrollListener);
+
+    setLayout(new GridLayout());
+    add(imageCanvasScrollPane);
 
     //
     // just like JComponent and ImageCanvas
@@ -119,7 +232,8 @@ public class ImageViewerV2 extends JScrollPane {
   }
 
   /**
-   * Updates the image this viewer will display. If the value is null, nothing will be showed.
+   * Updates the image this viewer will display. If the value is null, nothing
+   * will be showed.
    * 
    * @param image
    *          the {@link BufferedImage} to be displayed
@@ -132,7 +246,8 @@ public class ImageViewerV2 extends JScrollPane {
   /**
    * Returns the image this viewer shows.
    * 
-   * @return the {@link BufferedImage} this viewer is showing, or <code>null</code> if there is no image to be showed
+   * @return the {@link BufferedImage} this viewer is showing, or
+   *         <code>null</code> if there is no image to be showed
    */
   public final BufferedImage getImage() {
     return imageCanvas.getImage();
@@ -142,8 +257,39 @@ public class ImageViewerV2 extends JScrollPane {
   public void setOpaque(boolean isOpaque) {
     super.setOpaque(isOpaque);
 
-//     imageCanvas.setOpaque(isOpaque);
-//     getViewport().setOpaque(isOpaque);
+    imageCanvasContainer.setOpaque(isOpaque);
+    imageCanvasScrollPane.setOpaque(isOpaque);
+    imageCanvasScrollPane.getViewport().setOpaque(isOpaque);
+  }
+
+  @Override
+  public synchronized void addMouseListener(MouseListener l) {
+    imageCanvas.addMouseListener(l);
+  }
+
+  @Override
+  public synchronized MouseListener[] getMouseListeners() {
+    return imageCanvas.getMouseListeners();
+  }
+
+  @Override
+  public synchronized void addMouseMotionListener(MouseMotionListener l) {
+    imageCanvas.addMouseMotionListener(l);
+  }
+
+  @Override
+  public synchronized MouseMotionListener[] getMouseMotionListeners() {
+    return imageCanvas.getMouseMotionListeners();
+  }
+
+  @Override
+  public synchronized void addMouseWheelListener(MouseWheelListener l) {
+    imageCanvas.addMouseWheelListener(l);
+  }
+
+  @Override
+  public synchronized MouseWheelListener[] getMouseWheelListeners() {
+    return imageCanvas.getMouseWheelListeners();
   }
 
   /**
@@ -161,8 +307,8 @@ public class ImageViewerV2 extends JScrollPane {
     //
     // size and visible rectangle before zooming
 
-    final Dimension oldImageCanvasContainerSize = imageCanvas.getSize();
-    final Rectangle oldImageCanvasContainerVisibleRect = imageCanvas.getVisibleRect();
+    final Dimension oldImageCanvasContainerSize = imageCanvasContainer.getSize();
+    final Rectangle oldImageCanvasContainerVisibleRect = imageCanvasContainer.getVisibleRect();
 
     //
     // calculate the center of the visible rectangle
@@ -179,7 +325,7 @@ public class ImageViewerV2 extends JScrollPane {
     //
     // zoomed size
 
-    final Dimension zoomedImageCanvasContainerSize = imageCanvas.getSize();
+    final Dimension zoomedImageCanvasContainerSize = imageCanvasContainer.getSize();
 
     //
     // now we can calculate the ratio (new size vs old size)
@@ -203,7 +349,7 @@ public class ImageViewerV2 extends JScrollPane {
     //
     // scroll to make visible the new rectangle
 
-    imageCanvas.scrollRectToVisible(newImageCanvasContainerVisibleRect);
+    imageCanvasContainer.scrollRectToVisible(newImageCanvasContainerVisibleRect);
   }
 
   /**
@@ -216,8 +362,8 @@ public class ImageViewerV2 extends JScrollPane {
   }
 
   /**
-   * Zooms out with the specified (percentage) value. For example if the current zoom is 80%, a zoom out with 20 as step
-   * will result in a 60% final zoom.
+   * Zooms out with the specified (percentage) value. For example if the current
+   * zoom is 80%, a zoom out with 20 as step will result in a 60% final zoom.
    * 
    * @param zoomStep
    *          zoom out step
@@ -240,7 +386,7 @@ public class ImageViewerV2 extends JScrollPane {
     // calculate the zoom based on container size
 
     if (zoomTmp == ZOOM_BEST_FIT) {
-      zoomTmp = ImageUtils.calculateSizeToFit(image, imageCanvas.getSize()).width * ZOOM_REAL_SIZE / image.getWidth();
+      zoomTmp = ImageUtils.calculateSizeToFit(image, imageCanvasContainer.getSize()).width * ZOOM_REAL_SIZE / image.getWidth();
     }
 
     //
@@ -248,18 +394,27 @@ public class ImageViewerV2 extends JScrollPane {
 
     int newZoom = (int) Math.floor(((double) zoomTmp) / ((double) zoomStep)) * zoomStep;
 
-//    if (newZoom == zoomTmp) {
+    if (newZoom == zoomTmp) {
       newZoom = newZoom - zoomStep;
-//    }
+    }
 
-    System.out.println(newZoom);
-    
+    if (newZoom > 0) {
       setZoom(newZoom);
+    }
+
+    //
+    // ignore if new zoom <= 0
+
+    else {
+      if (logger.isDebugEnabled()) {
+        logger.debug("new zoom <= 0 (zoom out is ignored)");
+      }
+    }
   }
 
   /**
-   * Zooms in with the specified (percentage) value. For example if the current zoom is 60%, a zoom in with 20 as step
-   * will result in a 80% final zoom.
+   * Zooms in with the specified (percentage) value. For example if the current
+   * zoom is 60%, a zoom in with 20 as step will result in a 80% final zoom.
    * 
    * @param zoomStep
    *          zoom out step
@@ -282,7 +437,7 @@ public class ImageViewerV2 extends JScrollPane {
     // calculate the zoom based on container size
 
     if (zoomTmp == ZOOM_BEST_FIT) {
-      zoomTmp = ImageUtils.calculateSizeToFit(image, imageCanvas.getSize()).width * ZOOM_REAL_SIZE / image.getWidth();
+      zoomTmp = ImageUtils.calculateSizeToFit(image, imageCanvasContainer.getSize()).width * ZOOM_REAL_SIZE / image.getWidth();
     }
 
     //
@@ -290,9 +445,9 @@ public class ImageViewerV2 extends JScrollPane {
 
     int newZoom = (int) (Math.floor(((double) zoomTmp) / ((double) zoomStep)) + 1) * zoomStep;
 
-//    if (newZoom == zoomTmp) {
+    if (newZoom == zoomTmp) {
       newZoom = newZoom + zoomStep;
-//    }
+    }
 
     setZoom(newZoom);
   }
@@ -305,9 +460,11 @@ public class ImageViewerV2 extends JScrollPane {
   }
 
   /**
-   * Determines whether this viewer is on "best fit" mode (the image will be always 100%).
+   * Determines whether this viewer is on "best fit" mode (the image will be
+   * always 100%).
    * 
-   * @return <code>true</code> if the viewer is on "best fit" mode, <code>false</code> otherwise
+   * @return <code>true</code> if the viewer is on "best fit" mode,
+   *         <code>false</code> otherwise
    */
   public final boolean isBestFit() {
     return zoom == ZOOM_BEST_FIT;
@@ -323,7 +480,8 @@ public class ImageViewerV2 extends JScrollPane {
   /**
    * Determines whether this viewer shows the image at the "real size" (100%).
    * 
-   * @return <code>true</code> if the viewer shows the image at "real size" (100%), <code>false</code> otherwise
+   * @return <code>true</code> if the viewer shows the image at "real size"
+   *         (100%), <code>false</code> otherwise
    */
   public final boolean isRealSize() {
     return zoom == ZOOM_REAL_SIZE;
@@ -345,7 +503,10 @@ public class ImageViewerV2 extends JScrollPane {
     // no image, no size
 
     if (image == null) {
-        imageCanvas.setPreferredSize(new Dimension(0, 0));
+      synchronized (imageCanvasMaxSize) {
+        imageCanvasMaxSize.width = 0;
+        imageCanvasMaxSize.height = 0;
+      }
     }
 
     else {
@@ -357,7 +518,10 @@ public class ImageViewerV2 extends JScrollPane {
       // if zoom is set to real size there is no need for calculations
 
       if (zoom == ZOOM_REAL_SIZE) {
-          imageCanvas.setPreferredSize(new Dimension(imageWidth, imageWidth));
+        synchronized (imageCanvasMaxSize) {
+          imageCanvasMaxSize.width = imageWidth;
+          imageCanvasMaxSize.height = imageHeight;
+        }
       }
 
       //
@@ -370,7 +534,10 @@ public class ImageViewerV2 extends JScrollPane {
         final double imageCanvasMaxWidth = ((double) imageWidth) * ratio;
         final double imageCanvasMaxHeight = ((double) imageHeight) * ratio;
 
-          imageCanvas.setPreferredSize(new Dimension((int) imageCanvasMaxWidth, (int) imageCanvasMaxHeight));
+        synchronized (imageCanvasMaxSize) {
+          imageCanvasMaxSize.width = (int) imageCanvasMaxWidth;
+          imageCanvasMaxSize.height = (int) imageCanvasMaxHeight;
+        }
       }
     }
 
@@ -379,18 +546,14 @@ public class ImageViewerV2 extends JScrollPane {
     // do not use #revaliade() method, validation will occur after all currently
     // pending events have been dispatched, use invalidate/validate/repaint
 
-    imageCanvas.    invalidate();
-    imageCanvas.validate();
-    imageCanvas.repaint();
-    
-//    imageCanvas.revalidate();
-    
-    invalidate();
-    validate();
-    repaint();
+    imageCanvasContainer.invalidate();
+    imageCanvasContainer.validate();
+    imageCanvasContainer.repaint();
 
-//    revalidate();
-    
+    imageCanvasScrollPane.invalidate();
+    imageCanvasScrollPane.validate();
+    imageCanvasScrollPane.repaint();
+
     //
     // this is the best place to update the cursor
     // since all actions on the image will call this method
@@ -420,12 +583,14 @@ public class ImageViewerV2 extends JScrollPane {
   private class DragToScrollListener extends MouseInputAdapter {
 
     /**
-     * The X coordinate for mouse pressed event, used to calculate the horizontal drag distance.
+     * The X coordinate for mouse pressed event, used to calculate the
+     * horizontal drag distance.
      */
     private int x;
 
     /**
-     * The Y coordinate for mouse pressed event, used to calculate the vertical drag distance.
+     * The Y coordinate for mouse pressed event, used to calculate the vertical
+     * drag distance.
      */
     private int y;
 
@@ -444,10 +609,10 @@ public class ImageViewerV2 extends JScrollPane {
       final int xDragged = e.getX() - x;
       final int yDragged = e.getY() - y;
 
-      final Point pointZero = SwingUtilities.convertPoint(getViewport(), 0, 0, imageCanvas);
-      final Rectangle viewRectangle = getViewport().getViewRect();
+      final Point pointZero = SwingUtilities.convertPoint(imageCanvasScrollPane.getViewport(), 0, 0, imageCanvasContainer);
+      final Rectangle viewRectangle = imageCanvasScrollPane.getViewport().getViewRect();
 
-      imageCanvas.scrollRectToVisible(new Rectangle(pointZero.x - xDragged, pointZero.y - yDragged, viewRectangle.width, viewRectangle.height));
+      imageCanvasContainer.scrollRectToVisible(new Rectangle(pointZero.x - xDragged, pointZero.y - yDragged, viewRectangle.width, viewRectangle.height));
 
       x = e.getX();
       y = e.getY();
@@ -477,8 +642,8 @@ public class ImageViewerV2 extends JScrollPane {
    */
   private void updateCursor(final boolean isDragging) {
 
-    final Dimension imageCanvasContainerSize = imageCanvas.getSize();
-    final Dimension imageCanvasScrollPaneViewportVisibleSize = getViewport().getExtentSize();
+    final Dimension imageCanvasContainerSize = imageCanvasContainer.getSize();
+    final Dimension imageCanvasScrollPaneViewportVisibleSize = imageCanvasScrollPane.getViewport().getExtentSize();
 
     final boolean isDifferentWidth = imageCanvasContainerSize.width > imageCanvasScrollPaneViewportVisibleSize.width;
     final boolean isDifferentHeight = imageCanvasContainerSize.height > imageCanvasScrollPaneViewportVisibleSize.height;
@@ -491,14 +656,14 @@ public class ImageViewerV2 extends JScrollPane {
     if (isDifferentWidth || isDifferentHeight) {
 
       if (isDragging) {
-        imageCanvas.setCursor(UITheme.getCursorDragging());
+        imageCanvasContainer.setCursor(UITheme.getCursorDragging());
       } else {
-        imageCanvas.setCursor(UITheme.getCursorDrag());
+        imageCanvasContainer.setCursor(UITheme.getCursorDrag());
       }
     }
 
     else {
-      imageCanvas.setCursor(UITheme.getCursorDefault());
+      imageCanvasContainer.setCursor(UITheme.getCursorDefault());
     }
   }
 }
