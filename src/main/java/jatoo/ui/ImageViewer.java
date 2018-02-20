@@ -168,8 +168,8 @@ public class ImageViewer extends JScrollPane {
 
     if (image != null) {
 
-      if (logger.isInfoEnabled()) {
-        logger.info("new zoom: " + newZoom + " (old zoom: " + zoom + ")");
+      if (logger.isDebugEnabled()) {
+        logger.debug("new zoom: " + newZoom + " (old zoom: " + zoom + ")");
       }
 
       if (newZoom < ZOOM_MIN_VALUE || newZoom > ZOOM_MAX_VALUE) {
