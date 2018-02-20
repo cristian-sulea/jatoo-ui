@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 5.0, February 20, 2018
+ * @version 5.1, February 20, 2018
  */
 @SuppressWarnings("serial")
 public class ImageViewer extends JScrollPane {
@@ -471,29 +471,32 @@ public class ImageViewer extends JScrollPane {
   }
 
   /**
-   * Updates the mouse cursor based on various factors. For example:
-   * <ul>
-   * <li>if drag is possible - {@link UITheme#getCursorDrag()}</li>
-   * <li>if is a drag - {@link UITheme#getCursorDragging()}</li>
-   * <li>when is size to fit - {@link UITheme#getCursorDefault()}</li>
-   * </ul>
+   * Updates the mouse cursor based on various factors.
    * 
    * @param isDragging
    *          indicates that there is a drag action
    */
   private void updateCursor(final boolean isDragging) {
 
-    if (isBestFit()) {
+    if (isImageSmaller()) {
       canvas.setCursor(UITheme.getCursorDefault());
     }
 
     else {
 
-      if (isDragging) {
-        canvas.setCursor(UITheme.getCursorDragging());
-      } else {
-        canvas.setCursor(UITheme.getCursorDrag());
+      if (isBestFit()) {
+        canvas.setCursor(UITheme.getCursorDefault());
+      }
+
+      else {
+
+        if (isDragging) {
+          canvas.setCursor(UITheme.getCursorDragging());
+        } else {
+          canvas.setCursor(UITheme.getCursorDrag());
+        }
       }
     }
   }
+
 }
