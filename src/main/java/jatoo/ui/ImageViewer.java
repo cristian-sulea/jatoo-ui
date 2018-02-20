@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 5.0, February 15, 2018
+ * @version 5.0, February 20, 2018
  */
 @SuppressWarnings("serial")
 public class ImageViewer extends JScrollPane {
@@ -168,14 +168,14 @@ public class ImageViewer extends JScrollPane {
 
     if (image != null) {
 
-      if (logger.isDebugEnabled()) {
-        logger.debug("new zoom: " + newZoom + " (old zoom: " + zoom + ")");
+      if (logger.isInfoEnabled()) {
+        logger.info("new zoom: " + newZoom + " (old zoom: " + zoom + ")");
       }
 
       if (newZoom < ZOOM_MIN_VALUE || newZoom > ZOOM_MAX_VALUE) {
 
         if (logger.isDebugEnabled()) {
-          logger.debug("new zoom is out of range");
+          logger.debug("new zoom (" + newZoom + ") is out of range [" + ZOOM_MIN_VALUE + ", " + ZOOM_MAX_VALUE + "]");
         }
 
         return;
