@@ -16,6 +16,8 @@
 
 package jatoo.ui;
 
+import java.io.File;
+
 import javax.swing.JFrame;
 
 /**
@@ -26,8 +28,8 @@ import javax.swing.JFrame;
  */
 public class AppWindowFrame extends AppWindow {
 
-  public AppWindowFrame() {
-    super(new JFrame());
+  public AppWindowFrame(final File propertiesFolder) {
+    super(new JFrame(), propertiesFolder);
   }
 
   /**

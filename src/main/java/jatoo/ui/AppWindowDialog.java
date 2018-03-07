@@ -16,18 +16,20 @@
 
 package jatoo.ui;
 
+import java.io.File;
+
 import javax.swing.JDialog;
 
 /**
  * A specialized {@link JDialog} implementation for the {@link AppWindow} base class.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 1.1, February 8, 2018
+ * @version 1.2, February 8, 2018
  */
 public class AppWindowDialog extends AppWindow {
 
-  public AppWindowDialog() {
-    super(new JDialog());
+  public AppWindowDialog(final File propertiesFolder) {
+    super(new JDialog(), propertiesFolder);
   }
 
   /**

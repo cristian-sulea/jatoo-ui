@@ -51,13 +51,13 @@ public abstract class AppWindow {
   private final Window window;
   private final FileProperties properties;
 
-  protected AppWindow(Window window) {
+  protected AppWindow(final Window window, final File propertiesFolder) {
     this.window = window;
 
     //
     // properties
 
-    properties = new FileProperties(new File(System.getProperty("user.home"), getClass().getName() + ".properties"));
+    properties = new FileProperties(new File(propertiesFolder, "window.properties"));
     properties.loadSilently();
 
     //
