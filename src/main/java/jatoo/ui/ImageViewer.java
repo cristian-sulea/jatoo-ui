@@ -16,6 +16,7 @@
 
 package jatoo.ui;
 
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -36,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 5.2, March 8, 2018
+ * @version 5.3, March 8, 2018
  */
 @SuppressWarnings("serial")
 public class ImageViewer extends JScrollPane {
@@ -496,6 +497,14 @@ public class ImageViewer extends JScrollPane {
           canvas.setCursor(UITheme.getCursorDrag());
         }
       }
+    }
+
+    //
+    // hack for repaint overlapping transparent components
+
+    Container c = getTopLevelAncestor();
+    if (c != null) {
+      c.repaint();
     }
   }
 
