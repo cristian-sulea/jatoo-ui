@@ -37,7 +37,7 @@ import jatoo.image.ImageUtils;
  * </ul>
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 3.0, February 2, 2018
+ * @version 3.1, March 8, 2018
  */
 @SuppressWarnings("serial")
 public class ImageCanvas extends JComponent {
@@ -49,7 +49,7 @@ public class ImageCanvas extends JComponent {
   private boolean paintRealSize = false;
 
   /** Interpolation hint value (how an image is scaled during a rendering operation). */
-  private Object interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+  private Object interpolationHint = null;
 
   /**
    * Creates a canvas instance with no image.
@@ -96,6 +96,16 @@ public class ImageCanvas extends JComponent {
 
   /**
    * @see #interpolationHint
+   * @see RenderingHints#KEY_INTERPOLATION
+   */
+  public void removeInterpolation() {
+    interpolationHint = null;
+    repaint();
+  }
+
+  /**
+   * @see #interpolationHint
+   * @see RenderingHints#KEY_INTERPOLATION
    * @see RenderingHints#VALUE_INTERPOLATION_NEAREST_NEIGHBOR
    */
   public void setInterpolationNearestNeighbor() {
@@ -105,6 +115,7 @@ public class ImageCanvas extends JComponent {
 
   /**
    * @see #interpolationHint
+   * @see RenderingHints#KEY_INTERPOLATION
    * @see RenderingHints#VALUE_INTERPOLATION_BILINEAR
    */
   public void setInterpolationBilinear() {
@@ -114,6 +125,7 @@ public class ImageCanvas extends JComponent {
 
   /**
    * @see #interpolationHint
+   * @see RenderingHints#KEY_INTERPOLATION
    * @see RenderingHints#VALUE_INTERPOLATION_BICUBIC
    */
   public void setInterpolationBicubic() {
@@ -136,6 +148,10 @@ public class ImageCanvas extends JComponent {
     // create a new Graphics object to not alter the original
 
     final Graphics2D g = (Graphics2D) graphics.create();
+
+    if (interpolationHint != null) {
+      g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, interpolationHint);
+    }
 
     try {
 
@@ -173,7 +189,6 @@ public class ImageCanvas extends JComponent {
   }
 
   protected void paintImage(final Graphics2D g, final BufferedImage image, final int x, final int y, final int width, final int height) {
-    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, interpolationHint);
     g.drawImage(image, x, y, width, height, null);
   }
 
