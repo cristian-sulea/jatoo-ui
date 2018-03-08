@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 5.1, February 20, 2018
+ * @version 5.2, March 8, 2018
  */
 @SuppressWarnings("serial")
 public class ImageViewer extends JScrollPane {
@@ -126,11 +126,11 @@ public class ImageViewer extends JScrollPane {
 
     boolean isImageSmaller = isImageSmaller();
 
-    if (isImageSmaller) {
-      canvas.setInterpolationNearestNeighbor();
-    } else {
-      canvas.setInterpolationBicubic();
-    }
+    // if (isImageSmaller) {
+    // canvas.setInterpolationNearestNeighbor();
+    // } else {
+    // canvas.setInterpolationBicubic();
+    // }
 
     canvas.setImage(image);
 
