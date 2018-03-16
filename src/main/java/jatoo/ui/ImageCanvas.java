@@ -49,7 +49,7 @@ public class ImageCanvas extends JComponent {
   private boolean paintRealSize = false;
 
   /** Interpolation hint value (how an image is scaled during a rendering operation). */
-  private Object interpolationHint = null;
+  private Object interpolationHint = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 
   /**
    * Creates a canvas instance with no image.
