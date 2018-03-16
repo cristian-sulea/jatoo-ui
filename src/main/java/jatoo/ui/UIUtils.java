@@ -57,7 +57,7 @@ import org.apache.commons.logging.LogFactory;
  * A collection of utility methods to ease the work with UI components.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 4.1, January 19, 2018
+ * @version 4.2, March 16, 2018
  */
 public class UIUtils {
 
@@ -259,6 +259,18 @@ public class UIUtils {
   public static void setActionForCtrlUpKeyStroke(JComponent component, Action action) {
     component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(CTRL_UP_KEY_STROKE, CTRL_UP_ACTION_MAP_KEY);
     component.getActionMap().put(CTRL_UP_ACTION_MAP_KEY, action);
+  }
+
+  //
+  // --- Ctrl + C
+  //
+
+  private static final KeyStroke CTRL_C_KEY_STROKE = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK);
+  private static final String CTRL_C_ACTION_MAP_KEY = "CTRL_C_ACTION_MAP_KEY";
+
+  public static void setActionForCtrlCKeyStroke(JComponent component, Action action) {
+    component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(CTRL_C_KEY_STROKE, CTRL_C_ACTION_MAP_KEY);
+    component.getActionMap().put(CTRL_C_ACTION_MAP_KEY, action);
   }
 
   //
