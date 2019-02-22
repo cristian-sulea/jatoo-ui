@@ -5,12 +5,14 @@
   <parent>
     <groupId>net.sulea.cristian</groupId>
     <artifactId>jatoo</artifactId>
-    <relativePath>../jatoo/pom.xml</relativePath>
-    <version>5.0</version>
+<!--     <relativePath>../jatoo/pom.xml</relativePath> -->
+    <version>5</version>
   </parent>
 
   <artifactId>jatoo-ui</artifactId>
   <packaging>jar</packaging>
+
+  <version>5.0</version>
 
 
   <name>JaToo UI</name>
@@ -32,8 +34,6 @@
         <role>architect</role>
         <role>developer</role>
       </roles>
-      <organization>cristian.sulea.net</organization>
-      <organizationUrl>http://cristian.sulea.net</organizationUrl>
     </developer>
   </developers>
 
@@ -45,22 +45,26 @@
   </scm>
 
 
+  <properties>
+    <skip.plugin.checkstyle>true</skip.plugin.checkstyle>
+    <skip.plugin.findbugs>true</skip.plugin.findbugs>
+    <skip.plugin.pmd>true</skip.plugin.pmd>
+  </properties>
+
+
   <dependencies>
 
     <dependency>
       <groupId>net.sulea.cristian</groupId>
       <artifactId>jatoo-image</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>net.sulea.cristian</groupId>
       <artifactId>jatoo-properties</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>net.sulea.cristian</groupId>
       <artifactId>jatoo-resources</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <dependency>
