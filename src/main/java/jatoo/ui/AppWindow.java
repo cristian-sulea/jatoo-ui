@@ -44,7 +44,7 @@ import jatoo.properties.FileProperties;
  * A generic base class created to ease the work with java window applications, like {@link JFrame} and {@link JDialog}.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 3.2, February 14, 2018
+ * @version 3.3, February 28, 2019
  */
 public abstract class AppWindow {
 
@@ -110,6 +110,13 @@ public abstract class AppWindow {
   }
 
   /**
+   * @see RootPaneContainer#getRootPane()
+   */
+  public JRootPane getRootPane() {
+    return ((RootPaneContainer) window).getRootPane();
+  }
+
+  /**
    * @see JRootPane#setContentPane(Container)
    */
   public void setContentPane(JComponent contentPane) {
@@ -163,6 +170,34 @@ public abstract class AppWindow {
    */
   public void addDropTargetListener(DropTargetListener listener) {
     new DropTarget(window, listener);
+  }
+
+  /**
+   * @see JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)
+   */
+  public void showMessage(String title, String message) {
+    JOptionPane.showMessageDialog(window, message, title, JOptionPane.PLAIN_MESSAGE);
+  }
+
+  /**
+   * @see JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)
+   */
+  public void showMessageInformation(String title, String message) {
+    JOptionPane.showMessageDialog(window, message, title, JOptionPane.INFORMATION_MESSAGE);
+  }
+
+  /**
+   * @see JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)
+   */
+  public void showMessageWarning(String title, String message) {
+    JOptionPane.showMessageDialog(window, message, title, JOptionPane.WARNING_MESSAGE);
+  }
+
+  /**
+   * @see JOptionPane#showMessageDialog(java.awt.Component, Object, String, int)
+   */
+  public void showMessageError(String title, String message) {
+    JOptionPane.showMessageDialog(window, message, title, JOptionPane.ERROR_MESSAGE);
   }
 
   /**

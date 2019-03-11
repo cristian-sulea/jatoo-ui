@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 5.3, March 8, 2018
+ * @version 5.4, March 11, 2019
  */
 @SuppressWarnings("serial")
 public class ImageViewer extends JScrollPane {
@@ -390,6 +390,30 @@ public class ImageViewer extends JScrollPane {
    */
   public final boolean isRealSize() {
     return zoom == ZOOM_REAL_SIZE;
+  }
+
+  /**
+   * The scroll bars are displayed only when needed.
+   */
+  public void setScrollBarsVisibilityToAsNeeded() {
+    setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+  }
+
+  /**
+   * The scroll bars are never displayed.
+   */
+  public void setScrollBarsVisibilityToNever() {
+    setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+    setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+  }
+
+  /**
+   * The scroll bars are always displayed.
+   */
+  public void setScrollBarsVisibilityToAlways() {
+    setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
   }
 
   private boolean isImageSmaller() {
