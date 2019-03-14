@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
  * A "viewer" component where images can be displayed, one at a time.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 5.4, March 11, 2019
+ * @version 5.5, March 14, 2019
  */
 @SuppressWarnings("serial")
 public class ImageViewer extends JScrollPane {
@@ -114,6 +114,15 @@ public class ImageViewer extends JScrollPane {
   public ImageViewer(final BufferedImage image) {
     this();
     setImage(image);
+  }
+
+  /**
+   * Gets the canvas used to paint the image.
+   * 
+   * @return the {@link ImageCanvas} object
+   */
+  public final ImageCanvas getCanvas() {
+    return canvas;
   }
 
   /**
@@ -272,6 +281,14 @@ public class ImageViewer extends JScrollPane {
       Rectangle zoomedCanvasVisibleRect = new Rectangle(oldCanvasVisibleRect.getSize());
       zoomedCanvasVisibleRect.x = zoomedCanvasVisibleRectCenterX - oldCanvasVisibleRect.width / 2;
       zoomedCanvasVisibleRect.y = zoomedCanvasVisibleRectCenterY - oldCanvasVisibleRect.height / 2;
+
+      // Point mousePoint = getMousePosition();
+      // Dimension size = getSize();
+      // int xSlide = mousePoint.x < size.width / 2 ? -1 : +1;
+      // int YSlide = mousePoint.y < size.height / 2 ? -1 : +1;
+      //
+      // zoomedCanvasVisibleRect.x += (xSlide * (size.width*5/100));
+      // zoomedCanvasVisibleRect.y += (YSlide * (size.height*5/100));
 
       canvas.scrollRectToVisible(zoomedCanvasVisibleRect);
     }
