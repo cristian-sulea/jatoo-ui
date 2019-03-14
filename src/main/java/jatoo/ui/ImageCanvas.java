@@ -19,6 +19,7 @@ package jatoo.ui;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
@@ -37,13 +38,16 @@ import jatoo.image.ImageUtils;
  * </ul>
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 3.1, March 8, 2018
+ * @version 3.2, March 14, 2019
  */
 @SuppressWarnings("serial")
 public class ImageCanvas extends JComponent {
 
   /** The image that the canvas paints. */
   private BufferedImage image;
+
+  /** The bounds of the painted image. */
+  private Rectangle imageBounds;
 
   /** Do not resize to fit the max size of the canvas. */
   private boolean paintRealSize = false;
@@ -84,6 +88,15 @@ public class ImageCanvas extends JComponent {
    */
   public final BufferedImage getImage() {
     return image;
+  }
+
+  /**
+   * Gets the bounds of the painted image in the form of a {@link Rectangle} object.
+   * 
+   * @return a rectangle indicating the painted image's bounds
+   */
+  public final Rectangle getImageBounds() {
+    return imageBounds;
   }
 
   public void setPaintRealSize(boolean paintRealSize) {
@@ -174,18 +187,26 @@ public class ImageCanvas extends JComponent {
 
   protected void paintImage(final Graphics2D g, final BufferedImage image, final int canvasWidth, final int canvasHeight) {
 
-    final Dimension imageDrawingSize;
+    final int imageBoundsWidth;
+    final int imageBoundsHeight;
 
     if (paintRealSize) {
-      imageDrawingSize = new Dimension(image.getWidth(), image.getHeight());
-    } else {
-      imageDrawingSize = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
+      imageBoundsWidth = image.getWidth();
+      imageBoundsHeight = image.getHeight();
     }
 
-    int imageDrawingX = (canvasWidth - imageDrawingSize.width) / 2;
-    int imageDrawingY = (canvasHeight - imageDrawingSize.height) / 2;
+    else {
+      Dimension sizeToFit = ImageUtils.calculateSizeToFit(image, canvasWidth, canvasHeight);
+      imageBoundsWidth = sizeToFit.width;
+      imageBoundsHeight = sizeToFit.height;
+    }
 
-    paintImage(g, image, imageDrawingX, imageDrawingY, imageDrawingSize.width, imageDrawingSize.height);
+    int imageBoundsX = (canvasWidth - imageBoundsWidth) / 2;
+    int imageBoundsY = (canvasHeight - imageBoundsHeight) / 2;
+
+    paintImage(g, image, imageBoundsX, imageBoundsY, imageBoundsWidth, imageBoundsHeight);
+
+    imageBounds = new Rectangle(imageBoundsX, imageBoundsY, imageBoundsWidth, imageBoundsHeight);
   }
 
   protected void paintImage(final Graphics2D g, final BufferedImage image, final int x, final int y, final int width, final int height) {
