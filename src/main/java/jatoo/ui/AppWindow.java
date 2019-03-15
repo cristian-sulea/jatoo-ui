@@ -21,8 +21,11 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Window;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetListener;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
@@ -44,7 +47,7 @@ import jatoo.properties.FileProperties;
  * A generic base class created to ease the work with java window applications, like {@link JFrame} and {@link JDialog}.
  * 
  * @author <a href="http://cristian.sulea.net" rel="author">Cristian Sulea</a>
- * @version 3.3, February 28, 2019
+ * @version 3.4, March 14, 2019
  */
 public abstract class AppWindow {
 
@@ -165,11 +168,20 @@ public abstract class AppWindow {
     window.addWindowFocusListener(l);
   }
 
-  /**
-   * @see DropTarget
-   */
-  public void addDropTargetListener(DropTargetListener listener) {
-    new DropTarget(window, listener);
+  public static interface DragAndDropListener {
+    void onDrop(Transferable transferable);
+  }
+
+  public void addDragAndDropListener(DragAndDropListener listener) {
+
+    new DropTarget(window, new DropTargetAdapter() {
+
+      @Override
+      public void drop(DropTargetDropEvent event) {
+        event.acceptDrop(DnDConstants.ACTION_COPY);
+        listener.onDrop(event.getTransferable());
+      }
+    });
   }
 
   /**
